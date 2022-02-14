@@ -5,12 +5,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import br.com.superaGameStore.dto.ProductDto;
 import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.repository.ProductRepository;
 import br.com.superaGameStore.service.ProductService;
 
+@Service
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
