@@ -31,6 +31,15 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MethodNotAllowedException.class)
+    public final ResponseEntity<Object> handleMethodNotAllowedException(MethodNotAllowedException ex) {
+
+        String[] details = ex.getLocalizedMessage().split("\n");
+        ErrorResponse error = new ErrorResponse("method now allowed", details);
+
+        return new ResponseEntity<Object>(error, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public final ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
 
