@@ -37,6 +37,16 @@ public class CartServiceImplTest {
     @Autowired
     private ProductService productService;
 
+    private Product createProduct(String name, String image, int score, double price) {
+
+        Product product = new Product();
+        product.setName(name);
+        product.setImage(image);
+        product.setScore((short) score);
+        product.setPrice(BigDecimal.valueOf(price).setScale(2, RoundingMode.CEILING));
+        return product;
+    }
+
     @Test
     void shouldCreateCart() {
 
@@ -84,18 +94,9 @@ public class CartServiceImplTest {
     @Test
     void shouldReturnCartProductsByPrice() {
 
-        Product product1 = new Product();
-        product1.setPrice(BigDecimal.valueOf(2));
-        product1.setName(".");
-        product1.setImage(".");
-        Product product2 = new Product();
-        product2.setPrice(BigDecimal.valueOf(3));
-        product2.setName(".");
-        product2.setImage(".");
-        Product product3 = new Product();
-        product3.setPrice(BigDecimal.valueOf(1));
-        product3.setName(".");
-        product3.setImage(".");
+        Product product1 = createProduct("Name", "Image", 1, 2.0);
+        Product product2 = createProduct("Name", "Image", 1, 3.0);
+        Product product3 = createProduct("Name", "Image", 1, 1.0);
 
         product1 = productService.addProduct(product1);
         product2 = productService.addProduct(product2);
@@ -123,15 +124,9 @@ public class CartServiceImplTest {
     @Test
     void shouldReturnCartProductsByName() {
 
-        Product product1 = new Product();
-        product1.setName("B");
-        product1.setImage(".");
-        Product product2 = new Product();
-        product2.setName("C");
-        product2.setImage(".");
-        Product product3 = new Product();
-        product3.setName("A");
-        product3.setImage(".");
+        Product product1 = createProduct("B", "Image", 1, 1.0);
+        Product product2 = createProduct("C", "Image", 1, 1.0);
+        Product product3 = createProduct("A", "Image", 1, 1.0);
 
         product1 = productService.addProduct(product1);
         product2 = productService.addProduct(product2);
@@ -153,18 +148,9 @@ public class CartServiceImplTest {
     @Test
     void shouldReturnCartProductsByScore() {
 
-        Product product1 = new Product();
-        product1.setScore((short) 2);
-        product1.setName(".");
-        product1.setImage(".");
-        Product product2 = new Product();
-        product2.setScore((short) 1);
-        product2.setName(".");
-        product2.setImage(".");
-        Product product3 = new Product();
-        product3.setScore((short) 3);
-        product3.setName(".");
-        product3.setImage(".");
+        Product product1 = createProduct("Name", "Image", 2, 1.0);
+        Product product2 = createProduct("Name", "Image", 1, 1.0);
+        Product product3 = createProduct("Name", "Image", 3, 1.0);
 
         product1 = productService.addProduct(product1);
         product2 = productService.addProduct(product2);
@@ -186,11 +172,7 @@ public class CartServiceImplTest {
     @Test
     void shouldAddProduct() {
 
-        Product product = new Product();
-        product.setName("Name");
-        product.setImage("Image");
-        product.setScore((short) 1);
-        product.setPrice(BigDecimal.valueOf(1));
+        Product product = createProduct("Name", "Image", 1, 1.0);
 
         product = productService.addProduct(product);
 
@@ -213,9 +195,7 @@ public class CartServiceImplTest {
     @Test
     void shouldIncreaseProductQuantity() {
 
-        Product product = new Product();
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
 
         product = productService.addProduct(product);
 
@@ -233,9 +213,7 @@ public class CartServiceImplTest {
     @Test
     void shouldNotAddProduct() {
 
-        Product product = new Product();
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
 
         product = productService.addProduct(product);
 
@@ -254,9 +232,7 @@ public class CartServiceImplTest {
     @Test
     void shouldRemoveProduct() {
 
-        Product product = new Product();
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
 
         product = productService.addProduct(product);
 
@@ -273,9 +249,7 @@ public class CartServiceImplTest {
     @Test
     void shouldDecreaseProductQuantity() {
 
-        Product product = new Product();
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
 
         product = productService.addProduct(product);
 
@@ -294,9 +268,7 @@ public class CartServiceImplTest {
     @Test
     void shouldNotRemoveProduct() {
 
-        Product product = new Product();
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
 
         product = productService.addProduct(product);
 

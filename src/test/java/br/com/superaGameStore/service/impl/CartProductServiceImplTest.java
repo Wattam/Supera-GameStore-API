@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,15 +37,22 @@ public class CartProductServiceImplTest {
     @Autowired
     private ProductService productService;
 
+    private Product createProduct(String name, String image, int score, double price) {
+
+        Product product = new Product();
+        product.setName(name);
+        product.setImage(image);
+        product.setScore((short) score);
+        product.setPrice(BigDecimal.valueOf(price).setScale(2, RoundingMode.CEILING));
+        return product;
+    }
+
     @Test
     void shouldReturnCartProduct() {
 
         Cart cart = cartService.createCart();
 
-        Product product = new Product();
-        product.setPrice(BigDecimal.valueOf(1.00));
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
         product = productService.addProduct(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
@@ -65,9 +73,7 @@ public class CartProductServiceImplTest {
 
         Cart cart = cartService.createCart();
 
-        Product product = new Product();
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
         product = productService.addProduct(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
@@ -80,10 +86,7 @@ public class CartProductServiceImplTest {
 
         Cart cart = cartService.createCart();
 
-        Product product = new Product();
-        product.setPrice(BigDecimal.valueOf(1.00));
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
         product = productService.addProduct(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
@@ -105,10 +108,7 @@ public class CartProductServiceImplTest {
 
         Cart cart = cartService.createCart();
 
-        Product product = new Product();
-        product.setPrice(BigDecimal.valueOf(1.00));
-        product.setName(".");
-        product.setImage(".");
+        Product product = createProduct("Name", "Image", 1, 1.0);
         product = productService.addProduct(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);

@@ -38,7 +38,7 @@ import br.com.superaGameStore.service.ProductService;
 public class ProductControllerTest {
 
     @Autowired
-    protected MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockBean
     private ProductService productService;
