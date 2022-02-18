@@ -20,9 +20,7 @@ import br.com.superaGameStore.controller.exception.RecordNotFoundException;
 import br.com.superaGameStore.dto.ProductDto;
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
-import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.repository.CartRepository;
-import br.com.superaGameStore.service.CartProductService;
 import br.com.superaGameStore.service.CartService;
 import br.com.superaGameStore.service.ProductService;
 
@@ -35,9 +33,6 @@ public class CartServiceImplTest {
 
     @Autowired
     private CartService cartService;
-
-    @Autowired
-    private CartProductService cartProductService;
 
     @Autowired
     private ProductService productService;
