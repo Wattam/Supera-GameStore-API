@@ -17,9 +17,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.superaGameStore.controller.exception.MethodNotAllowedException;
 import br.com.superaGameStore.controller.exception.RecordNotFoundException;
-import br.com.superaGameStore.dto.ProductDto;
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
+import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.repository.CartRepository;
 import br.com.superaGameStore.service.CartService;
 import br.com.superaGameStore.service.ProductService;
@@ -84,12 +84,18 @@ public class CartServiceImplTest {
     @Test
     void shouldReturnCartProductsByPrice() {
 
-        ProductDto product1 = new ProductDto();
+        Product product1 = new Product();
         product1.setPrice(BigDecimal.valueOf(2));
-        ProductDto product2 = new ProductDto();
+        product1.setName(".");
+        product1.setImage(".");
+        Product product2 = new Product();
         product2.setPrice(BigDecimal.valueOf(3));
-        ProductDto product3 = new ProductDto();
+        product2.setName(".");
+        product2.setImage(".");
+        Product product3 = new Product();
         product3.setPrice(BigDecimal.valueOf(1));
+        product3.setName(".");
+        product3.setImage(".");
 
         product1 = productService.addProduct(product1);
         product2 = productService.addProduct(product2);
@@ -117,12 +123,15 @@ public class CartServiceImplTest {
     @Test
     void shouldReturnCartProductsByName() {
 
-        ProductDto product1 = new ProductDto();
+        Product product1 = new Product();
         product1.setName("B");
-        ProductDto product2 = new ProductDto();
+        product1.setImage(".");
+        Product product2 = new Product();
         product2.setName("C");
-        ProductDto product3 = new ProductDto();
+        product2.setImage(".");
+        Product product3 = new Product();
         product3.setName("A");
+        product3.setImage(".");
 
         product1 = productService.addProduct(product1);
         product2 = productService.addProduct(product2);
@@ -144,12 +153,18 @@ public class CartServiceImplTest {
     @Test
     void shouldReturnCartProductsByScore() {
 
-        ProductDto product1 = new ProductDto();
+        Product product1 = new Product();
         product1.setScore((short) 2);
-        ProductDto product2 = new ProductDto();
+        product1.setName(".");
+        product1.setImage(".");
+        Product product2 = new Product();
         product2.setScore((short) 1);
-        ProductDto product3 = new ProductDto();
+        product2.setName(".");
+        product2.setImage(".");
+        Product product3 = new Product();
         product3.setScore((short) 3);
+        product3.setName(".");
+        product3.setImage(".");
 
         product1 = productService.addProduct(product1);
         product2 = productService.addProduct(product2);
@@ -171,7 +186,7 @@ public class CartServiceImplTest {
     @Test
     void shouldAddProduct() {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
         product.setName("Name");
         product.setImage("Image");
         product.setScore((short) 1);
@@ -198,7 +213,9 @@ public class CartServiceImplTest {
     @Test
     void shouldIncreaseProductQuantity() {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
+        product.setName(".");
+        product.setImage(".");
 
         product = productService.addProduct(product);
 
@@ -216,7 +233,9 @@ public class CartServiceImplTest {
     @Test
     void shouldNotAddProduct() {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
+        product.setName(".");
+        product.setImage(".");
 
         product = productService.addProduct(product);
 
@@ -235,7 +254,9 @@ public class CartServiceImplTest {
     @Test
     void shouldRemoveProduct() {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
+        product.setName(".");
+        product.setImage(".");
 
         product = productService.addProduct(product);
 
@@ -252,7 +273,9 @@ public class CartServiceImplTest {
     @Test
     void shouldDecreaseProductQuantity() {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
+        product.setName(".");
+        product.setImage(".");
 
         product = productService.addProduct(product);
 
@@ -271,7 +294,9 @@ public class CartServiceImplTest {
     @Test
     void shouldNotRemoveProduct() {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
+        product.setName(".");
+        product.setImage(".");
 
         product = productService.addProduct(product);
 

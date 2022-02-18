@@ -3,15 +3,15 @@ package br.com.superaGameStore.service;
 import java.util.List;
 import java.util.Optional;
 
-import br.com.superaGameStore.dto.ProductDto;
+import br.com.superaGameStore.model.Product;
 
 public interface ProductService {
 
-    public List<ProductDto> getAllProducts();
+    public List<Product> getAllProducts();
 
-    public Optional<ProductDto> getProduct(Long id);
+    public Optional<Product> getProduct(long id);
 
-    public ProductDto addProduct(ProductDto productDto);
+    public Product addProduct(Product product);
 
-    public void deleteProduct(Long id);
+    public void deleteProduct(long id);
 }

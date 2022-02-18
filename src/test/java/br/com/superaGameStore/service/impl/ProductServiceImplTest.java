@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import br.com.superaGameStore.dto.ProductDto;
 import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.repository.ProductRepository;
 import br.com.superaGameStore.service.ProductService;
@@ -46,7 +45,7 @@ public class ProductServiceImplTest {
         productRepository.save(createProduct(1L, "Name1", "Image1", 1, 1));
         productRepository.save(createProduct(2L, "Name2", "Image2", 2, 2));
 
-        List<ProductDto> products = productService.getAllProducts();
+        List<Product> products = productService.getAllProducts();
 
         assertEquals(2, products.size());
 
@@ -68,7 +67,7 @@ public class ProductServiceImplTest {
     @Test
     void shouldNotReturnAnyProduct() {
 
-        List<ProductDto> products = productService.getAllProducts();
+        List<Product> products = productService.getAllProducts();
 
         assertEquals(0, products.size());
     }
@@ -78,7 +77,7 @@ public class ProductServiceImplTest {
 
         Product expected = productRepository.save(createProduct(1L, "Name", "Image", 1, 1));
 
-        Product actual = productService.getProduct(1L).get().toEntity();
+        Product actual = productService.getProduct(1L).get();
 
         assertEquals(expected, actual);
         assertEquals(1L, actual.getId());
@@ -91,7 +90,7 @@ public class ProductServiceImplTest {
     @Test
     void shouldNotReturnProduct() {
 
-        ProductDto actual = productService.getProduct(1L).orElse(actual = null);
+        Product actual = productService.getProduct(1L).orElse(actual = null);
 
         assertFalse(productService.getProduct(1L).isPresent());
         assertEquals(null, actual);
@@ -100,16 +99,16 @@ public class ProductServiceImplTest {
     @Test
     void shouldAddProduct() {
 
-        ProductDto expected = new ProductDto();
+        Product expected = new Product();
         expected.setName("Name");
         expected.setImage("Image");
         expected.setScore((short) 1);
         expected.setPrice(BigDecimal.valueOf(1).setScale(2, RoundingMode.CEILING));
 
-        ProductDto addedProduct = productService.addProduct(expected);
+        Product addedProduct = productService.addProduct(expected);
         assertNotNull(addedProduct);
 
-        ProductDto actual = productRepository.findById(addedProduct.getId()).map(ProductDto::of).get();
+        Product actual = productRepository.findById(addedProduct.getId()).get();
 
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.getImage(), actual.getImage());
@@ -125,7 +124,7 @@ public class ProductServiceImplTest {
 
         productService.deleteProduct(1L);
 
-        ProductDto actual = productService.getProduct(1L).orElse(actual = null);
+        Product actual = productService.getProduct(1L).orElse(actual = null);
 
         assertEquals(null, actual);
     }

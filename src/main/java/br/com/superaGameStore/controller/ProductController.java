@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.superaGameStore.controller.exception.RecordNotFoundException;
-import br.com.superaGameStore.dto.ProductDto;
+import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.service.ProductService;
 
 @RestController
@@ -29,9 +29,9 @@ public class ProductController {
 
     @GetMapping("/get")
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductDto> getAll() {
+    public List<Product> getAll() {
 
-        List<ProductDto> products = productService.getAllProducts();
+        List<Product> products = productService.getAllProducts();
         if (products == null || products.isEmpty()) {
             throw new RecordNotFoundException("no product found");
         }
@@ -40,7 +40,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProductDto get(@PathVariable Long id) {
+    public Product get(@PathVariable long id) {
 
         return productService
                 .getProduct(id)
@@ -49,24 +49,24 @@ public class ProductController {
 
     @PostMapping("/post")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductDto post(@Valid @RequestBody ProductDto productDto) {
+    public Product post(@Valid @RequestBody Product product) {
 
-        return productService.addProduct(productDto);
+        return productService.addProduct(product);
     }
 
     @PutMapping("/put")
     @ResponseStatus(HttpStatus.OK)
-    public ProductDto put(@Valid @RequestBody ProductDto productDto) {
+    public Product put(@Valid @RequestBody Product product) {
 
-        if (productService.getProduct(productDto.getId()).isEmpty()) {
-            throw new RecordNotFoundException("no product with the ID: " + productDto.getId());
+        if (productService.getProduct(product.getId()).isEmpty()) {
+            throw new RecordNotFoundException("no product with the ID: " + product.getId());
         }
-        return productService.addProduct(productDto);
+        return productService.addProduct(product);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable long id) {
 
         if (productService.getProduct(id).isEmpty()) {
             throw new RecordNotFoundException("no product with the ID: " + id);

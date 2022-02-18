@@ -88,7 +88,7 @@ public class CartServiceImpl implements CartService {
         }
 
         Cart cart = cartRepository.findById(cartId).get();
-        CartProductKey cpk = new CartProductKey(cart, productService.getProduct(productId).get().toEntity());
+        CartProductKey cpk = new CartProductKey(cart, productService.getProduct(productId).get());
 
         if (cartProductService.cartProductIsPresent(cpk)) {
 
@@ -113,7 +113,7 @@ public class CartServiceImpl implements CartService {
 
         CartProductKey cpk = new CartProductKey(
                 cartRepository.findById(cartId).get(),
-                productService.getProduct(productId).get().toEntity());
+                productService.getProduct(productId).get());
 
         if (cartProductService.cartProductIsPresent(cpk)) {
 

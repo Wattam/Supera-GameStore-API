@@ -30,7 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import br.com.superaGameStore.controller.exception.RecordNotFoundException;
-import br.com.superaGameStore.dto.ProductDto;
+import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.service.ProductService;
 
 @SpringBootTest
@@ -43,14 +43,14 @@ public class ProductControllerTest {
     @MockBean
     private ProductService productService;
 
-    private ProductDto createProductDto(String name, String image, int score, double price) {
+    private Product createProduct(String name, String image, int score, double price) {
 
-        ProductDto productDto = new ProductDto();
-        productDto.setName(name);
-        productDto.setImage(image);
-        productDto.setScore((short) score);
-        productDto.setPrice(BigDecimal.valueOf(price).setScale(2, RoundingMode.CEILING));
-        return productDto;
+        Product product = new Product();
+        product.setName(name);
+        product.setImage(image);
+        product.setScore((short) score);
+        product.setPrice(BigDecimal.valueOf(price).setScale(2, RoundingMode.CEILING));
+        return product;
     }
 
     @BeforeEach
@@ -61,10 +61,10 @@ public class ProductControllerTest {
     @Test
     void shouldGetAllProducts() throws Exception {
 
-        ProductDto product1 = createProductDto("Name1", "Image1", 1, 1);
-        ProductDto product2 = createProductDto("Name2", "Image2", 2, 2);
-        List<ProductDto> products = ImmutableList
-                .<ProductDto>builder()
+        Product product1 = createProduct("Name1", "Image1", 1, 1);
+        Product product2 = createProduct("Name2", "Image2", 2, 2);
+        List<Product> products = ImmutableList
+                .<Product>builder()
                 .add(product1)
                 .add(product2)
                 .build();
@@ -98,10 +98,10 @@ public class ProductControllerTest {
     @Test
     void shouldGetProduct() throws Exception {
 
-        ProductDto productDto = createProductDto("Name", "Image", 1, 1);
-        productDto.setId(1L);
+        Product product = createProduct("Name", "Image", 1, 1);
+        product.setId(1L);
 
-        when(productService.getProduct(1L)).thenReturn(Optional.of(productDto));
+        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(get("/products/1").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -137,7 +137,7 @@ public class ProductControllerTest {
 
         String json = "{\"id\": \"1\",\"name\": \"Name\",\"image\": \"Image\",\"score\": 1, \"price\": 1}";
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
 
         when(productService.getProduct(1L)).thenReturn(Optional.of(product));
 
@@ -160,7 +160,7 @@ public class ProductControllerTest {
     @Test
     void shouldDeleteProduct() throws Exception {
 
-        ProductDto product = new ProductDto();
+        Product product = new Product();
 
         when(productService.getProduct(1L)).thenReturn(Optional.of(product));
 

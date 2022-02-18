@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.superaGameStore.dto.ProductDto;
 import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.repository.ProductRepository;
 import br.com.superaGameStore.service.ProductService;
@@ -19,30 +18,28 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
 
     @Override
-    public List<ProductDto> getAllProducts() {
+    public List<Product> getAllProducts() {
 
         return productRepository
                 .findAll()
                 .stream()
-                .map(ProductDto::of)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<ProductDto> getProduct(Long id) {
+    public Optional<Product> getProduct(long id) {
 
-        return productRepository.findById(id).map(ProductDto::of);
+        return productRepository.findById(id);
     }
 
     @Override
-    public ProductDto addProduct(ProductDto productDto) {
+    public Product addProduct(Product product) {
 
-        Product postedProduct = productRepository.save(productDto.toEntity());
-        return ProductDto.of(postedProduct);
+        return productRepository.save(product);
     }
 
     @Override
-    public void deleteProduct(Long id) {
+    public void deleteProduct(long id) {
 
         productRepository.deleteById(id);
     }
