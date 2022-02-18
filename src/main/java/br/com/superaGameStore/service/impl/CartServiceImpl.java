@@ -90,9 +90,9 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findById(cartId).get();
         CartProductKey cpk = new CartProductKey(cart, productService.getProduct(productId).get());
 
-        if (cartProductService.cartProductIsPresent(cpk)) {
+        if (cartProductService.getCartProduct(cpk).isPresent()) {
 
-            CartProduct cp = cartProductService.getCartProduct(cpk);
+            CartProduct cp = cartProductService.getCartProduct(cpk).get();
             cp.setQuantity(cp.getQuantity() + quantity);
             cartProductService.addCartProduct(cp);
             return cartRepository.findById(cartId).get();
@@ -115,9 +115,9 @@ public class CartServiceImpl implements CartService {
                 cartRepository.findById(cartId).get(),
                 productService.getProduct(productId).get());
 
-        if (cartProductService.cartProductIsPresent(cpk)) {
+        if (cartProductService.getCartProduct(cpk).isPresent()) {
 
-            CartProduct cp = cartProductService.getCartProduct(cpk);
+            CartProduct cp = cartProductService.getCartProduct(cpk).get();
 
             if ((cp.getQuantity() - quantity) <= 0) {
                 cartProductService.deleteCartProduct(cpk);

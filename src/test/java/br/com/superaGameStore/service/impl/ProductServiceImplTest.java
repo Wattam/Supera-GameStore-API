@@ -1,8 +1,8 @@
 package br.com.superaGameStore.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -90,10 +90,7 @@ public class ProductServiceImplTest {
     @Test
     void shouldNotReturnProduct() {
 
-        Product actual = productService.getProduct(1L).orElse(actual = null);
-
-        assertFalse(productService.getProduct(1L).isPresent());
-        assertEquals(null, actual);
+        assertTrue(productService.getProduct(1L).isEmpty());
     }
 
     @Test
@@ -124,8 +121,6 @@ public class ProductServiceImplTest {
 
         productService.deleteProduct(1L);
 
-        Product actual = productService.getProduct(1L).orElse(actual = null);
-
-        assertEquals(null, actual);
+        assertTrue(productService.getProduct(1L).isEmpty());
     }
 }

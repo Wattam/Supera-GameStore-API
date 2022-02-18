@@ -1,5 +1,7 @@
 package br.com.superaGameStore.service.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +17,9 @@ public class CartProductServiceImpl implements CartProductService {
     public CartProductRepository cartProductRepository;
 
     @Override
-    public CartProduct getCartProduct(CartProductKey cpk) {
+    public Optional<CartProduct> getCartProduct(CartProductKey cpk) {
 
-        return cartProductRepository.findById(cpk).get();
-    }
-
-    @Override
-    public boolean cartProductIsPresent(CartProductKey cpk) {
-
-        if (cartProductRepository.findById(cpk).isPresent()) {
-            return true;
-        }
-        return false;
+        return cartProductRepository.findById(cpk);
     }
 
     @Override

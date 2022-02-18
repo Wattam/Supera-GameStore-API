@@ -1,13 +1,13 @@
 package br.com.superaGameStore.service;
 
+import java.util.Optional;
+
 import br.com.superaGameStore.model.CartProduct;
 import br.com.superaGameStore.model.CartProductKey;
 
 public interface CartProductService {
 
-    public CartProduct getCartProduct(CartProductKey cpk);
-
-    public boolean cartProductIsPresent(CartProductKey cpk);
+    public Optional<CartProduct> getCartProduct(CartProductKey cpk);
 
     public void addCartProduct(CartProduct cp);
 
