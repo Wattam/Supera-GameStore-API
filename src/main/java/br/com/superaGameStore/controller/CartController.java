@@ -1,5 +1,7 @@
 package br.com.superaGameStore.controller;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,12 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     public @NotNull Iterable<Cart> getAllCarts() {
 
-        return cartService.getAllCarts();
+        List<Cart> carts = (List<Cart>) cartService.getAllCarts();
+        if (carts == null || carts.isEmpty()) {
+            throw new RecordNotFoundException("no cart found");
+        }
+
+        return carts;
     }
 
     @GetMapping("/{id}/cartByPrice")

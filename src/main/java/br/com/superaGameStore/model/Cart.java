@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,7 +30,7 @@ public class Cart {
     public String status;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "cpk.cart")
+    @OneToMany(mappedBy = "cpk.cart", fetch = FetchType.EAGER)
     @Valid
     public List<CartProduct> cartProducts = new ArrayList<>();
 

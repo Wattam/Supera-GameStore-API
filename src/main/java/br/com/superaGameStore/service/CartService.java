@@ -14,9 +14,9 @@ public interface CartService {
 
     public Cart getCartProductsByScore(long id);
 
-    public Cart addProduct(long id, long productId, int quantity);
+    public Cart addProduct(long cartId, long productId, int quantity);
 
-    public Cart removeProduct(long id, long productId, int quantity);
+    public Cart removeProduct(long cartId, long productId, int quantity);
 
     public Cart cartCheckOut(long id);
 
