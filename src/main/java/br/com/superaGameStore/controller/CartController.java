@@ -34,14 +34,14 @@ public class CartController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Cart post() {
+    public Cart create() {
 
         return cartService.createCart();
     }
 
     @GetMapping("/get")
     @ResponseStatus(HttpStatus.OK)
-    public @NotNull Iterable<Cart> getAllCarts() {
+    public @NotNull List<Cart> getAllCarts() {
 
         List<Cart> carts = (List<Cart>) cartService.getAllCarts();
         if (carts == null || carts.isEmpty()) {
