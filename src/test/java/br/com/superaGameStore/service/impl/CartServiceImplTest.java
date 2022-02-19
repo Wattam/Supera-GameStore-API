@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.superaGameStore.controller.exception.MethodNotAllowedException;
@@ -90,6 +91,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldReturnCartProductsByPrice() {
 
         Product product1 = createProduct("Name", "Image", 1, 2.0);
@@ -120,6 +122,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldReturnCartProductsByName() {
 
         Product product1 = createProduct("B", "Image", 1, 1.0);
@@ -144,6 +147,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldReturnCartProductsByScore() {
 
         Product product1 = createProduct("Name", "Image", 2, 1.0);
@@ -168,6 +172,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldAddProduct() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
@@ -191,6 +196,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldIncreaseProductQuantity() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
@@ -209,6 +215,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldNotAddProduct() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
@@ -228,6 +235,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldRemoveProduct() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
@@ -245,6 +253,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldDecreaseProductQuantity() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
@@ -264,6 +273,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldNotRemoveProduct() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);

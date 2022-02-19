@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.superaGameStore.model.Product;
@@ -40,6 +41,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldReturnAllProducts() {
 
         productRepository.save(createProduct(1L, "Name1", "Image1", 1, 1));
@@ -73,6 +75,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldReturnProduct() {
 
         Product expected = productRepository.save(createProduct(1L, "Name", "Image", 1, 1));
@@ -88,12 +91,14 @@ public class ProductServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldNotReturnProduct() {
 
         assertTrue(productService.getProduct(1L).isEmpty());
     }
 
     @Test
+    @DirtiesContext
     void shouldAddProduct() {
 
         Product expected = new Product();
@@ -114,6 +119,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldDeleteProduct() {
 
         productRepository.save(createProduct(1L, "Name", "Image", 1, 1));
