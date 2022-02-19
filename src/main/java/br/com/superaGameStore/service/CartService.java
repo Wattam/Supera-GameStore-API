@@ -11,8 +11,6 @@ public interface CartService {
 
     public List<Cart> getAllCarts();
 
-    public Optional<Cart> getCart(long id);
-
     public Optional<Cart> getCartProductsByPrice(long id);
 
     public Optional<Cart> getCartProductsByName(long id);

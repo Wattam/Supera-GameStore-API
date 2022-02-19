@@ -42,11 +42,6 @@ public class CartServiceImpl implements CartService {
         return cartRepository.findAll();
     }
 
-    public Optional<Cart> getCart(long id) {
-
-        return cartRepository.findById(id);
-    }
-
     @Override
     public Optional<Cart> getCartProductsByPrice(long id) {
 
