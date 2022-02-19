@@ -43,7 +43,7 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     public @NotNull List<Cart> getAllCarts() {
 
-        List<Cart> carts = (List<Cart>) cartService.getAllCarts();
+        List<Cart> carts = cartService.getAllCarts();
         if (carts == null || carts.isEmpty()) {
             throw new RecordNotFoundException("no cart found");
         }
@@ -57,7 +57,7 @@ public class CartController {
 
         cartService.cartNotFound(id);
 
-        return cartService.getCartProductsByPrice(id);
+        return cartService.getCartProductsByPrice(id).get();
     }
 
     @GetMapping("/{id}/cartByName")
@@ -66,7 +66,7 @@ public class CartController {
 
         cartService.cartNotFound(id);
 
-        return cartService.getCartProductsByName(id);
+        return cartService.getCartProductsByName(id).get();
     }
 
     @GetMapping("/{id}/cartByScore")
@@ -75,7 +75,7 @@ public class CartController {
 
         cartService.cartNotFound(id);
 
-        return cartService.getCartProductsByScore(id);
+        return cartService.getCartProductsByScore(id).get();
     }
 
     @PutMapping("/add")

@@ -2,6 +2,7 @@ package br.com.superaGameStore.service.impl;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,13 +37,18 @@ public class CartServiceImpl implements CartService {
         return cartRepository.save(cart);
     }
 
-    public Iterable<Cart> getAllCarts() {
+    public List<Cart> getAllCarts() {
 
         return cartRepository.findAll();
     }
 
+    public Optional<Cart> getCart(long id) {
+
+        return cartRepository.findById(id);
+    }
+
     @Override
-    public Cart getCartProductsByPrice(long id) {
+    public Optional<Cart> getCartProductsByPrice(long id) {
 
         Cart cart = cartRepository.findById(id).get();
 
@@ -51,11 +57,11 @@ public class CartServiceImpl implements CartService {
         Collections.sort(cartProducts, CartProduct.PriceComparator);
         cart.setCartProducts(cartProducts);
 
-        return cart;
+        return Optional.of(cart);
     }
 
     @Override
-    public Cart getCartProductsByName(long id) {
+    public Optional<Cart> getCartProductsByName(long id) {
 
         Cart cart = cartRepository.findById(id).get();
 
@@ -64,11 +70,11 @@ public class CartServiceImpl implements CartService {
         Collections.sort(cartProducts, CartProduct.NameComparator);
         cart.setCartProducts(cartProducts);
 
-        return cart;
+        return Optional.of(cart);
     }
 
     @Override
-    public Cart getCartProductsByScore(long id) {
+    public Optional<Cart> getCartProductsByScore(long id) {
 
         Cart cart = cartRepository.findById(id).get();
 
@@ -77,7 +83,7 @@ public class CartServiceImpl implements CartService {
         Collections.sort(cartProducts, CartProduct.ScoreComparator);
         cart.setCartProducts(cartProducts);
 
-        return cart;
+        return Optional.of(cart);
     }
 
     @Override
@@ -101,7 +107,7 @@ public class CartServiceImpl implements CartService {
         CartProduct cp = new CartProduct(cpk, quantity);
         cartProductService.addCartProduct(cp);
 
-        return this.cartRepository.findById(cartId).get();
+        return cartRepository.findById(cartId).get();
     }
 
     @Override

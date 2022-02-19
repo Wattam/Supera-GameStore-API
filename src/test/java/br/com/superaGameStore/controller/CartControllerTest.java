@@ -104,7 +104,7 @@ public class CartControllerTest {
                 .add(cart2)
                 .build();
 
-        when((List<Cart>) cartService.getAllCarts()).thenReturn(carts);
+        when(cartService.getAllCarts()).thenReturn(carts);
 
         mockMvc.perform(get("/carts/get").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -154,7 +154,7 @@ public class CartControllerTest {
 
         cart.setCartProducts(cartProducts);
 
-        when(cartService.getCartProductsByPrice(1)).thenReturn(cart);
+        when(cartService.getCartProductsByPrice(1)).thenReturn(Optional.of(cart));
 
         mockMvc.perform(get("/carts/1/cartByPrice").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -201,7 +201,7 @@ public class CartControllerTest {
 
         cart.setCartProducts(cartProducts);
 
-        when(cartService.getCartProductsByName(1)).thenReturn(cart);
+        when(cartService.getCartProductsByName(1)).thenReturn(Optional.of(cart));
 
         mockMvc.perform(get("/carts/1/cartByName").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -248,7 +248,7 @@ public class CartControllerTest {
 
         cart.setCartProducts(cartProducts);
 
-        when(cartService.getCartProductsByScore(1)).thenReturn(cart);
+        when(cartService.getCartProductsByScore(1)).thenReturn(Optional.of(cart));
 
         mockMvc.perform(get("/carts/1/cartByScore").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())

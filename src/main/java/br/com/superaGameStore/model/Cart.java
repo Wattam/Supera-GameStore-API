@@ -30,7 +30,7 @@ public class Cart {
     public String status;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "cpk.cart", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cpk.cart", fetch = FetchType.LAZY)
     @Valid
     public List<CartProduct> cartProducts = new ArrayList<>();
 

@@ -67,28 +67,26 @@ public class CartServiceImplTest {
         cartService.createCart();
         cartService.createCart();
 
-        Iterable<Cart> carts = cartService.getAllCarts();
-        List<Cart> list = (List<Cart>) carts;
+        List<Cart> carts = cartService.getAllCarts();
 
-        assertEquals(2, list.size());
+        assertEquals(2, carts.size());
 
-        assertEquals(1L, list.get(0).getId());
-        assertEquals(2L, list.get(1).getId());
+        assertEquals(1L, carts.get(0).getId());
+        assertEquals(2L, carts.get(1).getId());
 
-        assertEquals("OPEN", list.get(0).getStatus());
-        assertEquals("OPEN", list.get(1).getStatus());
+        assertEquals("OPEN", carts.get(0).getStatus());
+        assertEquals("OPEN", carts.get(1).getStatus());
 
-        assertTrue(list.get(0).getCartProducts().isEmpty());
-        assertTrue(list.get(1).getCartProducts().isEmpty());
+        assertTrue(carts.get(0).getCartProducts().isEmpty());
+        assertTrue(carts.get(1).getCartProducts().isEmpty());
     }
 
     @Test
     void shouldNotReturnAnyCart() {
 
-        Iterable<Cart> carts = cartService.getAllCarts();
-        List<Cart> list = (List<Cart>) carts;
+        List<Cart> carts = cartService.getAllCarts();
 
-        assertEquals(0, list.size());
+        assertEquals(0, carts.size());
     }
 
     @Test
@@ -108,7 +106,7 @@ public class CartServiceImplTest {
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCartProductsByPrice(cartId).getCartProducts();
+        List<CartProduct> cartProducts = cartService.getCartProductsByPrice(cartId).get().getCartProducts();
 
         assertEquals(
                 BigDecimal.valueOf(1.00).setScale(2, RoundingMode.CEILING),
@@ -138,7 +136,7 @@ public class CartServiceImplTest {
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCartProductsByName(cartId).getCartProducts();
+        List<CartProduct> cartProducts = cartService.getCartProductsByName(cartId).get().getCartProducts();
 
         assertEquals("A", cartProducts.get(0).getProduct().getName());
         assertEquals("B", cartProducts.get(1).getProduct().getName());
@@ -162,7 +160,7 @@ public class CartServiceImplTest {
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCartProductsByScore(cartId).getCartProducts();
+        List<CartProduct> cartProducts = cartService.getCartProductsByScore(cartId).get().getCartProducts();
 
         assertEquals((short) 3, cartProducts.get(0).getProduct().getScore());
         assertEquals((short) 2, cartProducts.get(1).getProduct().getScore());
@@ -315,15 +313,14 @@ public class CartServiceImplTest {
     void shouldDeleteCart() {
 
         long cartId = cartService.createCart().getId();
-        Iterable<Cart> carts = cartService.getAllCarts();
-        List<Cart> list = (List<Cart>) carts;
+        List<Cart> carts = cartService.getAllCarts();
 
-        assertEquals(1, list.size());
+        assertEquals(1, carts.size());
 
         cartService.deleteCart(cartId);
 
-        list = (List<Cart>) cartService.getAllCarts();
-        assertEquals(0, list.size());
+        carts = cartService.getAllCarts();
+        assertEquals(0, carts.size());
     }
 
     @Test
