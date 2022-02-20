@@ -1,35 +1,40 @@
-
 # Game Store API
 ![Game Store Logo](img/../assets/images/GameStore.png)
 
 ## Description
 Restful API for a game store. It contains CRUD operations for Products and a implementation of Shopping Carts with the following operations:
 
-- Create cart
-- Get all carts
-- Get a cart with it's products sorted by price (lowest to highest)
-- Get a cart with it's products sorted by name (alphabetical order)
-- Get a cart with it's products sorted by score (highest to lowest)
-- Add a product to a cart
-- Remove a product from a cart
-- Checkout a cart (change it's status to CLOSED and products can't be added/removed to/from it anymore)
-- Delete a cart
+- Create cart.
+- Get all carts.
+- Get a cart with it's products sorted by price (lowest to highest).
+- Get a cart with it's products sorted by name (alphabetical order).
+- Get a cart with it's products sorted by score (highest to lowest).
+- Add a product to a cart.
+- Remove a product from a cart.
+- Checkout a cart (change it's status to CLOSED and products can't be added/removed to/from it anymore).
+- Delete a cart.
+
+Each cart will have - dinamically calculated - the following values:
+
+- **Subtotal:** the price of all products summed up, without the freight price.
+- **Total:** the sum of subtotal and freight values.
+- **Freight:** R$ 10,00 for each product added to the cart. If the cart's subtotal value it's equal or higher than R$ 250,00 the freight price becomes R$ 0,00.
 
 Spring Boot it's the most popular Java framework to build web applications and was chosen to this project cause of it's three core capabilities:
 
-- Autoconfiguration
-- Opinionated approach to configuration
-- Ability to create standalone applications
+- Autoconfiguration.
+- Opinionated approach to configuration.
+- Ability to create standalone applications.
 
 
 ## Technologies used
-- Java 11
-- Spring Boot
-- Spring Data JPA
-- Spring Web
-- Maven
-- Lombok
-- H2 Database
+- Java 11.
+- Spring Boot.
+- Spring Data JPA.
+- Spring Web.
+- Maven.
+- Lombok.
+- H2 Database.
 
 
 ## To run the application
@@ -45,9 +50,8 @@ java -jar target/Supera-GameStore-API-1.0.jar
 ```
 - Run directly throught the Spring Boot Dashboard on your IDE of choice.
 
-## To run the application
+## To run the the tests
 
-To run the tests:
 ```
 ./mvnw clean test
 ```
@@ -57,6 +61,8 @@ To run the tests:
 ```
 ├───.mvn
 │	└───wrapper
+├───assets
+│	└───images
 └───src
 	├───main
 	│	└───java
@@ -561,4 +567,8 @@ To run the tests:
 - `DELETE` `localhost:8080/carts/{id}`: deletes a specific cart by the ID.
 - Response example: **`200 OK`**
 
----
+## Additional Information
+
+- Inside `./assets` folder there's a `Products.json` file, that contains products written in `.json` ready to be added throught the `PostProduct` endpoint (even that the file contains more than one product you need to add one at a time).
+- There's a bug where the first time a product will be added to a cart throught the `AddProduct` endpoint it will not appear on response body. The product will be added normally, but just not shown on the response. That happens cause in `Cart.java` model file the fetch type it's setted to `EAGER`.
+- A similar bug happens with `RemoveProduct` endpoint when a product gonna be removed instead of it's quantity reduced: on response body it will show that the product is still there, but it will be removed normally. The cause it's the same of the previous bug, the fetch type on `Cart.java` model.
