@@ -156,7 +156,7 @@ public class CartControllerTest {
 
         when(cartService.getCartProductsByPrice(1)).thenReturn(Optional.of(cart));
 
-        mockMvc.perform(get("/carts/1/cartByPrice").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1/productsByPrice").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()))
                 .andExpect(jsonPath("$.cartProducts[:1].product.price").value(1.0))
@@ -169,7 +169,7 @@ public class CartControllerTest {
 
         Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
 
-        mockMvc.perform(get("/carts/1/cartByPrice").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1/productsByPrice").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
@@ -203,7 +203,7 @@ public class CartControllerTest {
 
         when(cartService.getCartProductsByName(1)).thenReturn(Optional.of(cart));
 
-        mockMvc.perform(get("/carts/1/cartByName").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1/productsByName").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()))
                 .andExpect(jsonPath("$.cartProducts[:1].product.name").value("1"))
@@ -216,7 +216,7 @@ public class CartControllerTest {
 
         Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
 
-        mockMvc.perform(get("/carts/1/cartByName").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1/productsByName").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
@@ -250,7 +250,7 @@ public class CartControllerTest {
 
         when(cartService.getCartProductsByScore(1)).thenReturn(Optional.of(cart));
 
-        mockMvc.perform(get("/carts/1/cartByScore").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1/productsByScore").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()))
                 .andExpect(jsonPath("$.cartProducts[:1].product.score").value(1))
@@ -263,7 +263,7 @@ public class CartControllerTest {
 
         Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
 
-        mockMvc.perform(get("/carts/1/cartByScore").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1/productsByScore").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))

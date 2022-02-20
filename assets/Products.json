@@ -1,0 +1,62 @@
+{
+	"name": "Super Mario Odyssey",
+    "image": "super-mario-odyssey.png",
+    "score": 100,
+	"price": 197.88
+}
+
+{
+	"name": "Call Of Duty Infinite Warfare",
+	"image": "call-of-duty-infinite-warfare.png",
+    "score": 80,
+	"price": 49.99
+}
+
+{
+	"name": "The Witcher III Wild Hunt",
+	"image": "the-witcher-iii-wild-hunt.png",
+	"score": 250,
+	"price": 119.5
+}
+
+{
+	"name": "Call Of Duty WWII",
+	"image": "call-of-duty-wwii.png",
+    "score": 205,
+	"price": 249.99
+}
+
+{
+	"name": "Mortal Kombat XL",
+	"image": "mortal-kombat-xl.png",
+	"score": 150,
+    "price": 69.99  
+}
+
+{	
+	"name": "Shards of Darkness",
+	"image": "shards-of-darkness.png",
+	"score": 400,
+    "price": 71.94
+}
+
+{	
+	"name": "Terra Média: Sombras de Mordor",
+	"image": "terra-media-sombras-de-mordor.png",
+	"score": 50,
+    "price": 79.99
+}
+
+{	
+	"name": "FIFA 18",
+	"image": "fifa-18.png",
+    "price": 195.39,
+    "score": 325
+}
+
+{	
+	"name": "Horizon Zero Dawn",
+	"image": "horizon-zero-dawn.png",
+	"score": 290,
+    "price": 115.8
+}

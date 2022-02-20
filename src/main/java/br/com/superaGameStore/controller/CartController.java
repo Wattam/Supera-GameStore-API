@@ -51,7 +51,7 @@ public class CartController {
         return carts;
     }
 
-    @GetMapping("/{id}/cartByPrice")
+    @GetMapping("/{id}/productsByPrice")
     @ResponseStatus(HttpStatus.OK)
     public Cart getCartByPrice(@PathVariable long id) {
 
@@ -60,7 +60,7 @@ public class CartController {
         return cartService.getCartProductsByPrice(id).get();
     }
 
-    @GetMapping("/{id}/cartByName")
+    @GetMapping("/{id}/productsByName")
     @ResponseStatus(HttpStatus.OK)
     public Cart getCartByName(@PathVariable long id) {
 
@@ -69,7 +69,7 @@ public class CartController {
         return cartService.getCartProductsByName(id).get();
     }
 
-    @GetMapping("/{id}/cartByScore")
+    @GetMapping("/{id}/productsByScore")
     @ResponseStatus(HttpStatus.OK)
     public Cart getCartByScore(@PathVariable long id) {
 
