@@ -35,10 +35,10 @@ public class Cart {
     public List<CartProduct> cartProducts = new ArrayList<>();
 
     @Transient
-    public BigDecimal getFreight() {
+    public BigDecimal getShippingFee() {
 
         if (this.getSubTotalPrice().compareTo(BigDecimal.valueOf(250)) >= 0) {
-            return BigDecimal.valueOf(0);
+            return BigDecimal.valueOf(0.00);
         }
 
         int quantity = 0;
@@ -46,7 +46,7 @@ public class Cart {
         for (CartProduct cp : this.cartProducts) {
             quantity += cp.getQuantity();
         }
-        return BigDecimal.valueOf(10).multiply(BigDecimal.valueOf(quantity));
+        return BigDecimal.valueOf(10.00).multiply(BigDecimal.valueOf(quantity));
     }
 
     @Transient
@@ -63,6 +63,6 @@ public class Cart {
     @Transient
     public BigDecimal getTotalPrice() {
 
-        return this.getFreight().add(this.getSubTotalPrice());
+        return this.getShippingFee().add(this.getSubTotalPrice());
     }
 }

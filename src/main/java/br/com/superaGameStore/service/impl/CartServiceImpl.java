@@ -7,8 +7,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.superaGameStore.controller.exception.MethodNotAllowedException;
-import br.com.superaGameStore.controller.exception.RecordNotFoundException;
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
 import br.com.superaGameStore.model.CartProductKey;
@@ -43,39 +41,25 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Optional<Cart> getCartProductsByPrice(long id) {
+    public Optional<Cart> getCart(long id, String sort_by) {
 
         Cart cart = cartRepository.findById(id).get();
 
         List<CartProduct> cartProducts = cart.getCartProducts();
 
-        Collections.sort(cartProducts, CartProduct.PriceComparator);
-        cart.setCartProducts(cartProducts);
+        if (sort_by == null) {
+            sort_by = "";
+        }
+        if (sort_by.equals("price")) {
+            Collections.sort(cartProducts, CartProduct.PriceComparator);
+        }
+        if (sort_by.equals("name")) {
+            Collections.sort(cartProducts, CartProduct.NameComparator);
+        }
+        if (sort_by.equals("score")) {
+            Collections.sort(cartProducts, CartProduct.ScoreComparator);
+        }
 
-        return Optional.of(cart);
-    }
-
-    @Override
-    public Optional<Cart> getCartProductsByName(long id) {
-
-        Cart cart = cartRepository.findById(id).get();
-
-        List<CartProduct> cartProducts = cart.getCartProducts();
-
-        Collections.sort(cartProducts, CartProduct.NameComparator);
-        cart.setCartProducts(cartProducts);
-
-        return Optional.of(cart);
-    }
-
-    @Override
-    public Optional<Cart> getCartProductsByScore(long id) {
-
-        Cart cart = cartRepository.findById(id).get();
-
-        List<CartProduct> cartProducts = cart.getCartProducts();
-
-        Collections.sort(cartProducts, CartProduct.ScoreComparator);
         cart.setCartProducts(cartProducts);
 
         return Optional.of(cart);
@@ -83,10 +67,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart addProduct(long cartId, long productId, int quantity) {
-
-        if (cartRepository.findById(cartId).get().getStatus().equals("CLOSED")) {
-            throw new MethodNotAllowedException("the cart " + cartId + " is closed");
-        }
 
         Cart cart = cartRepository.findById(cartId).get();
         CartProductKey cpk = new CartProductKey(cart, productService.getProduct(productId).get());
@@ -107,10 +87,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart removeProduct(long cartId, long productId, int quantity) {
-
-        if (cartRepository.findById(cartId).get().getStatus().equals("CLOSED")) {
-            throw new MethodNotAllowedException("the cart " + cartId + " is closed");
-        }
 
         CartProductKey cpk = new CartProductKey(
                 cartRepository.findById(cartId).get(),
@@ -133,10 +109,6 @@ public class CartServiceImpl implements CartService {
 
     public Cart cartCheckOut(long id) {
 
-        if (cartRepository.findById(id).get().getStatus().equals("CLOSED")) {
-            throw new MethodNotAllowedException("the cart " + id + " it's already closed");
-        }
-
         Cart cart = cartRepository.findById(id).get();
         cart.setStatus("CLOSED");
         return cartRepository.save(cart);
@@ -147,17 +119,9 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findById(id).get();
 
         for (CartProduct cp : cart.getCartProducts()) {
-
             cartProductService.deleteCartProduct(cp.getCpk());
         }
 
         cartRepository.deleteById(id);
-    }
-
-    public void cartNotFound(long id) {
-
-        if (cartRepository.findById(id).isEmpty()) {
-            throw new RecordNotFoundException("no cart with the ID: " + id);
-        }
     }
 }

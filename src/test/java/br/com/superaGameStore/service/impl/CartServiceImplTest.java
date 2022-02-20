@@ -1,12 +1,11 @@
 package br.com.superaGameStore.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -16,8 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import br.com.superaGameStore.controller.exception.MethodNotAllowedException;
-import br.com.superaGameStore.controller.exception.RecordNotFoundException;
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
 import br.com.superaGameStore.model.Product;
@@ -92,7 +89,23 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartProductsByPrice() {
+    void shouldReturnCart() {
+
+        Cart expected = new Cart();
+        expected.setStatus("OPEN");
+        expected.setCartProducts(Collections.emptyList());
+        expected = cartRepository.save(expected);
+
+        Cart actual = cartService.getCart(expected.getId(), "").get();
+
+        assertEquals(expected.getId(), actual.getId());
+        assertEquals(expected.getStatus(), actual.getStatus());
+        assertTrue(actual.getCartProducts().isEmpty());
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldReturnCartWithProductsByPrice() {
 
         Product product1 = createProduct("Name", "Image", 1, 2.0);
         Product product2 = createProduct("Name", "Image", 1, 3.0);
@@ -108,7 +121,7 @@ public class CartServiceImplTest {
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCartProductsByPrice(cartId).get().getCartProducts();
+        List<CartProduct> cartProducts = cartService.getCart(cartId, "price").get().getCartProducts();
 
         assertEquals(
                 BigDecimal.valueOf(1.00).setScale(2, RoundingMode.CEILING),
@@ -123,7 +136,7 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartProductsByName() {
+    void shouldReturnCartWithProductsByName() {
 
         Product product1 = createProduct("B", "Image", 1, 1.0);
         Product product2 = createProduct("C", "Image", 1, 1.0);
@@ -139,7 +152,7 @@ public class CartServiceImplTest {
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCartProductsByName(cartId).get().getCartProducts();
+        List<CartProduct> cartProducts = cartService.getCart(cartId, "name").get().getCartProducts();
 
         assertEquals("A", cartProducts.get(0).getProduct().getName());
         assertEquals("B", cartProducts.get(1).getProduct().getName());
@@ -148,7 +161,7 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartProductsByScore() {
+    void shouldReturnCartWithProductsByScore() {
 
         Product product1 = createProduct("Name", "Image", 2, 1.0);
         Product product2 = createProduct("Name", "Image", 1, 1.0);
@@ -164,7 +177,7 @@ public class CartServiceImplTest {
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCartProductsByScore(cartId).get().getCartProducts();
+        List<CartProduct> cartProducts = cartService.getCart(cartId, "score").get().getCartProducts();
 
         assertEquals((short) 3, cartProducts.get(0).getProduct().getScore());
         assertEquals((short) 2, cartProducts.get(1).getProduct().getScore());
@@ -216,26 +229,6 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldNotAddProduct() {
-
-        Product product = createProduct("Name", "Image", 1, 1.0);
-
-        product = productService.addProduct(product);
-
-        long cartId = cartService.createCart().getId();
-        cartService.cartCheckOut(cartId);
-
-        MethodNotAllowedException thrown = assertThrows(
-                MethodNotAllowedException.class,
-                () -> {
-                    cartService.addProduct(cartId, 1L, 1);
-                });
-
-        assertEquals("the cart " + cartId + " is closed", thrown.getMessage());
-    }
-
-    @Test
-    @DirtiesContext
     void shouldRemoveProduct() {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
@@ -273,26 +266,6 @@ public class CartServiceImplTest {
     }
 
     @Test
-    @DirtiesContext
-    void shouldNotRemoveProduct() {
-
-        Product product = createProduct("Name", "Image", 1, 1.0);
-
-        product = productService.addProduct(product);
-
-        long cartId = cartService.createCart().getId();
-        cartService.cartCheckOut(cartId);
-
-        MethodNotAllowedException thrown = assertThrows(
-                MethodNotAllowedException.class,
-                () -> {
-                    cartService.removeProduct(cartId, 1L, 1);
-                });
-
-        assertEquals("the cart " + cartId + " is closed", thrown.getMessage());
-    }
-
-    @Test
     void shouldCheckOutCart() {
 
         long cartId = cartService.createCart().getId();
@@ -302,21 +275,6 @@ public class CartServiceImplTest {
 
         assertEquals("CLOSED", closedCart.getStatus());
         assertEquals("CLOSED", cartRepository.findById(cartId).get().getStatus());
-    }
-
-    @Test
-    void shouldNotCheckOutCart() {
-
-        long cartId = cartService.createCart().getId();
-        cartService.cartCheckOut(cartId);
-
-        MethodNotAllowedException thrown = assertThrows(
-                MethodNotAllowedException.class,
-                () -> {
-                    cartService.cartCheckOut(cartId);
-                });
-
-        assertEquals("the cart " + cartId + " it's already closed", thrown.getMessage());
     }
 
     @Test
@@ -331,28 +289,5 @@ public class CartServiceImplTest {
 
         carts = cartService.getAllCarts();
         assertEquals(0, carts.size());
-    }
-
-    @Test
-    void shouldThrowCartNotFound() {
-
-        RecordNotFoundException thrown = assertThrows(
-                RecordNotFoundException.class,
-                () -> {
-                    cartService.cartNotFound(1L);
-                });
-
-        assertEquals("no cart with the ID: " + 1L + "", thrown.getMessage());
-    }
-
-    @Test
-    void shouldNotThrowCartNotFound() {
-
-        cartService.createCart();
-        assertDoesNotThrow(
-                () -> {
-                    cartService.cartNotFound(1L);
-                },
-                "no cart with the ID: " + 1L + "");
     }
 }

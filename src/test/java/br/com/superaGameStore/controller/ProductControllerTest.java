@@ -59,7 +59,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void shouldGetAllProducts() throws Exception {
+    void shouldIndexProducts() throws Exception {
 
         Product product1 = createProduct("Name1", "Image1", 1, 1);
         Product product2 = createProduct("Name2", "Image2", 2, 2);
@@ -71,7 +71,7 @@ public class ProductControllerTest {
 
         when(productService.getAllProducts()).thenReturn(products);
 
-        mockMvc.perform(get("/products/get").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/products").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("length()").value(products.size()))
                 .andExpect(jsonPath("$[0].name", is("Name1")))
@@ -85,18 +85,18 @@ public class ProductControllerTest {
     }
 
     @Test
-    void shouldNotGetAllProducts() throws Exception {
+    void shouldNotIndexProducts() throws Exception {
 
         when(productService.getAllProducts()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/products/get").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/products").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof RecordNotFoundException))
                 .andExpect(result -> assertEquals("no product found", result.getResolvedException().getMessage()));
     }
 
     @Test
-    void shouldGetProduct() throws Exception {
+    void shouldShowProduct() throws Exception {
 
         Product product = createProduct("Name", "Image", 1, 1);
         product.setId(1L);
@@ -112,7 +112,7 @@ public class ProductControllerTest {
     }
 
     @Test
-    void shouldNotGetProduct() throws Exception {
+    void shouldNotShowProduct() throws Exception {
 
         when(productService.getAllProducts()).thenReturn(Collections.emptyList());
 
@@ -124,33 +124,33 @@ public class ProductControllerTest {
     }
 
     @Test
-    void shouldPostProduct() throws Exception {
+    void shouldStoreProduct() throws Exception {
 
         String json = "{\"name\": \"Name\",\"image\": \"Image\",\"score\": 1, \"price\": 1}";
 
-        mockMvc.perform(post("/products/post").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+        mockMvc.perform(post("/products").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated());
     }
 
     @Test
-    void shouldPutProduct() throws Exception {
+    void shouldUpdateProduct() throws Exception {
 
-        String json = "{\"id\": \"1\",\"name\": \"Name\",\"image\": \"Image\",\"score\": 1, \"price\": 1}";
+        String json = "{\"name\": \"Name\",\"image\": \"Image\",\"score\": 1, \"price\": 1}";
 
         Product product = new Product();
 
         when(productService.getProduct(1L)).thenReturn(Optional.of(product));
 
-        mockMvc.perform(put("/products/put").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/products/1").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void shouldNotPutProduct() throws Exception {
+    void shouldNotUpdateProduct() throws Exception {
 
-        String json = "{\"id\": \"1\",\"name\": \"Name\",\"image\": \"Image\",\"score\": 1, \"price\": 1}";
+        String json = "{\"name\": \"Name\",\"image\": \"Image\",\"score\": 1, \"price\": 1}";
 
-        mockMvc.perform(put("/products/put").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/products/1").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof RecordNotFoundException))
                 .andExpect(result -> assertEquals("no product with the ID: 1",

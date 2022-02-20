@@ -30,10 +30,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import br.com.superaGameStore.controller.exception.MethodNotAllowedException;
 import br.com.superaGameStore.controller.exception.RecordNotFoundException;
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
-import br.com.superaGameStore.model.CartProductKey;
 import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.service.CartService;
 import br.com.superaGameStore.service.ProductService;
@@ -77,24 +77,24 @@ public class CartControllerTest {
     }
 
     @Test
-    void shouldCreateCart() throws Exception {
+    void shouldStoreCart() throws Exception {
 
         Cart cart = createCart(1L);
 
         when(cartService.createCart()).thenReturn(cart);
 
-        mockMvc.perform(post("/carts/create").accept(APPLICATION_JSON))
+        mockMvc.perform(post("/carts").accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.status", is("OPEN")))
                 .andExpect(jsonPath("$.cartProducts", is(Collections.emptyList())))
-                .andExpect(jsonPath("$.totalPrice", is(0)))
-                .andExpect(jsonPath("$.subTotalPrice", is(0)))
-                .andExpect(jsonPath("$.freight", is(0)));
+                .andExpect(jsonPath("$.totalPrice").value(0.00))
+                .andExpect(jsonPath("$.subTotalPrice").value(0.00))
+                .andExpect(jsonPath("$.shippingFee").value(0.00));
     }
 
     @Test
-    void shouldGetAllCarts() throws Exception {
+    void shouldIndexCarts() throws Exception {
 
         Cart cart1 = createCart(1L);
         Cart cart2 = createCart(2L);
@@ -106,7 +106,7 @@ public class CartControllerTest {
 
         when(cartService.getAllCarts()).thenReturn(carts);
 
-        mockMvc.perform(get("/carts/get").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("length()").value(carts.size()))
                 .andExpect(jsonPath("$[0].id", is(1)))
@@ -118,11 +118,11 @@ public class CartControllerTest {
     }
 
     @Test
-    void shouldNotGetAllCarts() throws Exception {
+    void shouldNotIndexCarts() throws Exception {
 
         when((List<Cart>) cartService.getAllCarts()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/carts/get").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
@@ -131,143 +131,25 @@ public class CartControllerTest {
     }
 
     @Test
-    void shouldGetCartByPrice() throws Exception {
+    void shouldShow() throws Exception {
 
         Cart cart = createCart(1);
 
-        CartProduct cartProduct1 = new CartProduct(
-                new CartProductKey(cart, createProduct("1", "1", 1, 1)),
-                1);
-        CartProduct cartProduct2 = new CartProduct(
-                new CartProductKey(cart, createProduct("2", "2", 2, 2)),
-                1);
-        CartProduct cartProduct3 = new CartProduct(
-                new CartProductKey(cart, createProduct("3", "3", 3, 3)),
-                1);
+        when(cartService.getCart(1L, null)).thenReturn(Optional.of(cart));
 
-        List<CartProduct> cartProducts = ImmutableList
-                .<CartProduct>builder()
-                .add(cartProduct1)
-                .add(cartProduct2)
-                .add(cartProduct3)
-                .build();
-
-        cart.setCartProducts(cartProducts);
-
-        when(cartService.getCartProductsByPrice(1)).thenReturn(Optional.of(cart));
-
-        mockMvc.perform(get("/carts/1/productsByPrice").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()))
-                .andExpect(jsonPath("$.cartProducts[:1].product.price").value(1.0))
-                .andExpect(jsonPath("$.cartProducts[1:2].product.price").value(2.0))
-                .andExpect(jsonPath("$.cartProducts[2:3].product.price").value(3.0));
+                .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()));
     }
 
     @Test
     void shouldNotGetCartByPrice() throws Exception {
 
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
-
-        mockMvc.perform(get("/carts/1/productsByPrice").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/carts/1").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart found",
-                        result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void shouldGetCartByName() throws Exception {
-
-        Cart cart = createCart(1);
-
-        CartProduct cartProduct1 = new CartProduct(
-                new CartProductKey(cart, createProduct("1", "1", 1, 1)),
-                1);
-        CartProduct cartProduct2 = new CartProduct(
-                new CartProductKey(cart, createProduct("2", "2", 2, 2)),
-                1);
-        CartProduct cartProduct3 = new CartProduct(
-                new CartProductKey(cart, createProduct("3", "3", 3, 3)),
-                1);
-
-        List<CartProduct> cartProducts = ImmutableList
-                .<CartProduct>builder()
-                .add(cartProduct1)
-                .add(cartProduct2)
-                .add(cartProduct3)
-                .build();
-
-        cart.setCartProducts(cartProducts);
-
-        when(cartService.getCartProductsByName(1)).thenReturn(Optional.of(cart));
-
-        mockMvc.perform(get("/carts/1/productsByName").accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()))
-                .andExpect(jsonPath("$.cartProducts[:1].product.name").value("1"))
-                .andExpect(jsonPath("$.cartProducts[1:2].product.name").value("2"))
-                .andExpect(jsonPath("$.cartProducts[2:3].product.name").value("3"));
-    }
-
-    @Test
-    void shouldNotGetCartByName() throws Exception {
-
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
-
-        mockMvc.perform(get("/carts/1/productsByName").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart found",
-                        result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void shouldGetCartByScore() throws Exception {
-
-        Cart cart = createCart(1);
-
-        CartProduct cartProduct1 = new CartProduct(
-                new CartProductKey(cart, createProduct("1", "1", 1, 1)),
-                1);
-        CartProduct cartProduct2 = new CartProduct(
-                new CartProductKey(cart, createProduct("2", "2", 2, 2)),
-                1);
-        CartProduct cartProduct3 = new CartProduct(
-                new CartProductKey(cart, createProduct("3", "3", 3, 3)),
-                1);
-
-        List<CartProduct> cartProducts = ImmutableList
-                .<CartProduct>builder()
-                .add(cartProduct1)
-                .add(cartProduct2)
-                .add(cartProduct3)
-                .build();
-
-        cart.setCartProducts(cartProducts);
-
-        when(cartService.getCartProductsByScore(1)).thenReturn(Optional.of(cart));
-
-        mockMvc.perform(get("/carts/1/productsByScore").accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()))
-                .andExpect(jsonPath("$.cartProducts[:1].product.score").value(1))
-                .andExpect(jsonPath("$.cartProducts[1:2].product.score").value(2))
-                .andExpect(jsonPath("$.cartProducts[2:3].product.score").value(3));
-    }
-
-    @Test
-    void shouldNotGetCartByScore() throws Exception {
-
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
-
-        mockMvc.perform(get("/carts/1/productsByScore").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart found",
+                .andExpect(result -> assertEquals("no cart with the ID: 1",
                         result.getResolvedException().getMessage()));
     }
 
@@ -278,40 +160,65 @@ public class CartControllerTest {
 
         Product product = createProduct("Name", "Image", 1, 1);
 
-        when(cartService.addProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
         when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+        when(cartService.addProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
 
         String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/add").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldNotAddProductCauseCartNotFound() throws Exception {
 
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
-
         String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/add").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart found",
+                .andExpect(result -> assertEquals("no cart with the ID: 1",
                         result.getResolvedException().getMessage()));
     }
 
     @Test
     void shouldNotAddProductCauseProductNotFound() throws Exception {
 
+        Cart cart = createCart(1);
+
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+
         String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/add").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
                 .andExpect(result -> assertEquals("no product with the ID: 1",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void shouldNotAddProductCauseCartIsClosed() throws Exception {
+
+        Cart cart = createCart(1);
+        cart.setStatus("CLOSED");
+
+        Product product = createProduct("Name", "Image", 1, 1);
+
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+
+        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+
+        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(result -> assertTrue(
+                        result.getResolvedException() instanceof MethodNotAllowedException))
+                .andExpect(result -> assertEquals("the cart 1 is closed",
                         result.getResolvedException().getMessage()));
     }
 
@@ -322,12 +229,13 @@ public class CartControllerTest {
 
         Product product = createProduct("Name", "Image", 1, 1);
 
-        when(cartService.removeProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
         when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+        when(cartService.removeProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
 
         String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/remove").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk());
     }
@@ -335,25 +243,27 @@ public class CartControllerTest {
     @Test
     void shouldNotRemoveProductCauseCartNotFound() throws Exception {
 
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
-
         String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/remove").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
                         result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart found",
+                .andExpect(result -> assertEquals("no cart with the ID: 1",
                         result.getResolvedException().getMessage()));
     }
 
     @Test
     void shouldNotRemoveProductCauseProductNotFound() throws Exception {
 
+        Cart cart = createCart(1);
+
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+
         String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/remove").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(
@@ -363,28 +273,71 @@ public class CartControllerTest {
     }
 
     @Test
-    void shouldCheckOutCart() throws Exception {
+    void shouldNotRemoveProductCauseCartIsClosed() throws Exception {
 
         Cart cart = createCart(1);
         cart.setStatus("CLOSED");
 
-        when(cartService.cartCheckOut(cart.getId())).thenReturn(cart);
+        Product product = createProduct("Name", "Image", 1, 1);
+
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+
+        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+
+        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(result -> assertTrue(
+                        result.getResolvedException() instanceof MethodNotAllowedException))
+                .andExpect(result -> assertEquals("the cart 1 is closed",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void shouldCheckOutCart() throws Exception {
+
+        Cart cart = createCart(1);
+
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+        when(cartService.cartCheckOut(1L)).thenReturn(cart);
 
         mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void shouldNotCheckOutCart() throws Exception {
-
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
+    void shouldNotCheckOutCartCauseCartNotFound() throws Exception {
 
         mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(
+                        result.getResolvedException() instanceof RecordNotFoundException))
+                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void shouldNotCheckOutCartCauseCartIsClosed() throws Exception {
+
+        Cart cart = createCart(1);
+        cart.setStatus("CLOSED");
+
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+
+        mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(result -> assertTrue(
+                        result.getResolvedException() instanceof MethodNotAllowedException))
+                .andExpect(result -> assertEquals("the cart 1 is closed",
+                        result.getResolvedException().getMessage()));
     }
 
     @Test
     void shouldDeleteCart() throws Exception {
+
+        Cart cart = createCart(1);
+        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
 
         mockMvc.perform(delete("/carts/1").accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -393,9 +346,11 @@ public class CartControllerTest {
     @Test
     void shouldNotDeleteCart() throws Exception {
 
-        Mockito.doThrow(new RecordNotFoundException("no cart found")).when(cartService).cartNotFound(1L);
-
         mockMvc.perform(delete("/carts/1").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertTrue(
+                        result.getResolvedException() instanceof RecordNotFoundException))
+                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                        result.getResolvedException().getMessage()));
     }
 }

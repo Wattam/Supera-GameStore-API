@@ -11,11 +11,7 @@ public interface CartService {
 
     public List<Cart> getAllCarts();
 
-    public Optional<Cart> getCartProductsByPrice(long id);
-
-    public Optional<Cart> getCartProductsByName(long id);
-
-    public Optional<Cart> getCartProductsByScore(long id);
+    public Optional<Cart> getCart(long id, String sort_by);
 
     public Cart addProduct(long cartId, long productId, int quantity);
 
@@ -24,6 +20,4 @@ public interface CartService {
     public Cart cartCheckOut(long id);
 
     public void deleteCart(long id);
-
-    public void cartNotFound(long id);
 }

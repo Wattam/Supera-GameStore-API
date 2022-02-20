@@ -2,8 +2,6 @@ package br.com.superaGameStore.controller;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,9 +11,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.superaGameStore.controller.exception.MethodNotAllowedException;
 import br.com.superaGameStore.controller.exception.RecordNotFoundException;
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.service.CartService;
@@ -32,16 +32,16 @@ public class CartController {
     @Autowired
     private ProductService productService;
 
-    @PostMapping("/create")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Cart create() {
+    public Cart store() {
 
         return cartService.createCart();
     }
 
-    @GetMapping("/get")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public @NotNull List<Cart> getAllCarts() {
+    public List<Cart> index() {
 
         List<Cart> carts = cartService.getAllCarts();
         if (carts == null || carts.isEmpty()) {
@@ -51,41 +51,27 @@ public class CartController {
         return carts;
     }
 
-    @GetMapping("/{id}/productsByPrice")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Cart getCartByPrice(@PathVariable long id) {
+    public Cart show(@PathVariable long id, @RequestParam(required = false, name = "sort_by") String sort_by) {
 
-        cartService.cartNotFound(id);
-
-        return cartService.getCartProductsByPrice(id).get();
+        return cartService.getCart(id, sort_by)
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id));
     }
 
-    @GetMapping("/{id}/productsByName")
-    @ResponseStatus(HttpStatus.OK)
-    public Cart getCartByName(@PathVariable long id) {
-
-        cartService.cartNotFound(id);
-
-        return cartService.getCartProductsByName(id).get();
-    }
-
-    @GetMapping("/{id}/productsByScore")
-    @ResponseStatus(HttpStatus.OK)
-    public Cart getCartByScore(@PathVariable long id) {
-
-        cartService.cartNotFound(id);
-
-        return cartService.getCartProductsByScore(id).get();
-    }
-
-    @PutMapping("/add")
+    @PutMapping("/addProduct")
     @ResponseStatus(HttpStatus.OK)
     public Cart addProduct(@RequestBody CartForm cartForm) {
 
-        cartService.cartNotFound(cartForm.getCartId());
+        cartService.getCart(cartForm.getCartId(), "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + cartForm.getCartId()));
 
         productService.getProduct(cartForm.getProductId())
                 .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + cartForm.getProductId()));
+
+        if (cartService.getCart(cartForm.getCartId(), "").get().getStatus().equals("CLOSED")) {
+            throw new MethodNotAllowedException("the cart " + cartForm.getCartId() + " is closed");
+        }
 
         return cartService.addProduct(
                 cartForm.getCartId(),
@@ -93,14 +79,19 @@ public class CartController {
                 cartForm.getQuantity());
     }
 
-    @PutMapping("/remove")
+    @PutMapping("/removeProduct")
     @ResponseStatus(HttpStatus.OK)
     public Cart removeProduct(@RequestBody CartForm cartForm) {
 
-        cartService.cartNotFound(cartForm.getCartId());
+        cartService.getCart(cartForm.getCartId(), "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + cartForm.getCartId()));
 
         productService.getProduct(cartForm.getProductId())
                 .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + cartForm.getProductId()));
+
+        if (cartService.getCart(cartForm.getCartId(), "").get().getStatus().equals("CLOSED")) {
+            throw new MethodNotAllowedException("the cart " + cartForm.getCartId() + " is closed");
+        }
 
         return cartService.removeProduct(
                 cartForm.getCartId(),
@@ -110,18 +101,24 @@ public class CartController {
 
     @PutMapping("/checkout/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Cart cartCheckOut(@PathVariable long id) {
+    public Cart checkout(@PathVariable long id) {
 
-        cartService.cartNotFound(id);
+        cartService.getCart(id, "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id));
+
+        if (cartService.getCart(id, "").get().getStatus().equals("CLOSED")) {
+            throw new MethodNotAllowedException("the cart " + id + " is closed");
+        }
 
         return cartService.cartCheckOut(id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCart(@PathVariable long id) {
+    public void delete(@PathVariable long id) {
 
-        cartService.cartNotFound(id);
+        cartService.getCart(id, "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id));
 
         cartService.deleteCart(id);
     }

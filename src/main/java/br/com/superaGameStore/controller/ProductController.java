@@ -27,9 +27,9 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/get")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Product> getAll() {
+    public List<Product> index() {
 
         List<Product> products = productService.getAllProducts();
         if (products == null || products.isEmpty()) {
@@ -40,27 +40,28 @@ public class ProductController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product get(@PathVariable long id) {
+    public Product show(@PathVariable long id) {
 
         return productService
                 .getProduct(id)
                 .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + id));
     }
 
-    @PostMapping("/post")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product post(@Valid @RequestBody Product product) {
+    public Product store(@Valid @RequestBody Product product) {
 
         return productService.addProduct(product);
     }
 
-    @PutMapping("/put")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Product put(@Valid @RequestBody Product product) {
+    public Product update(@Valid @RequestBody Product product, @PathVariable long id) {
 
-        if (productService.getProduct(product.getId()).isEmpty()) {
-            throw new RecordNotFoundException("no product with the ID: " + product.getId());
+        if (productService.getProduct(id).isEmpty()) {
+            throw new RecordNotFoundException("no product with the ID: " + id);
         }
+        product.setId(id);
         return productService.addProduct(product);
     }
 

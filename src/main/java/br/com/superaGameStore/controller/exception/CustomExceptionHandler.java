@@ -35,7 +35,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     public final ResponseEntity<Object> handleMethodNotAllowedException(MethodNotAllowedException ex) {
 
         String[] details = ex.getLocalizedMessage().split("\n");
-        ErrorResponse error = new ErrorResponse("method now allowed", details);
+        ErrorResponse error = new ErrorResponse("method not allowed", details);
 
         return new ResponseEntity<Object>(error, HttpStatus.METHOD_NOT_ALLOWED);
     }
