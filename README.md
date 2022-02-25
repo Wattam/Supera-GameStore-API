@@ -7,9 +7,9 @@ Restful API for a game store. It contains CRUD operations for Products and a imp
 - Create a empty cart.
 - Get all carts.
 - Get a cart.
-- Get a cart with it's products sorted by price (lowest to highest).
 - Get a cart with it's products sorted by name (alphabetical order).
-- Get a cart with it's products sorted by score (highest to lowest).
+- Get a cart with it's products sorted by price (lowest to highest).
+- Get a cart with it's products sorted by score (lowest to highest).
 - Add a product to a cart.
 - Remove a product from a cart.
 - Checkout a cart (change it's status to CLOSED and products can't be added/removed to/from it anymore).
@@ -295,10 +295,9 @@ java -jar target/Supera-GameStore-API-1.0.jar
 
  - `GET` `localhost:8080/carts/{id}`: shows a cart by the ID.
  - Request parameters can be added to the endpoint to sort the cart products list:
- 
-	 - `?sort_by=price`: the products will be sorted by price (lowest to highest).
 	 - `?sort_by=name`: the products will be sorted by name (alphabetical order).
-	 - `?sort_by=score`: the products will be sorted by score (highest to lowest).
+	 - `?sort_by=price`: the products will be sorted by price (lowest to highest).
+	 - `?sort_by=score`: the products will be sorted by score (lowest to highest).
 
  - Response example:
 
