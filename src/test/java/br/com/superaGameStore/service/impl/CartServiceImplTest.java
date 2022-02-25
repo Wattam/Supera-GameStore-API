@@ -178,9 +178,9 @@ public class CartServiceImplTest {
 
         List<CartProduct> cartProducts = cartService.show(cartId, "score").get().getCartProducts();
 
-        assertEquals((short) 3, cartProducts.get(0).getProduct().getScore());
+        assertEquals((short) 1, cartProducts.get(0).getProduct().getScore());
         assertEquals((short) 2, cartProducts.get(1).getProduct().getScore());
-        assertEquals((short) 1, cartProducts.get(2).getProduct().getScore());
+        assertEquals((short) 3, cartProducts.get(2).getProduct().getScore());
     }
 
     @Test
@@ -278,6 +278,7 @@ public class CartServiceImplTest {
     }
 
     @Test
+    @DirtiesContext
     void shouldDeleteCart() {
 
         long cartId = cartService.store().getId();

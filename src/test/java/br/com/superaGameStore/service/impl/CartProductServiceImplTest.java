@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +48,108 @@ public class CartProductServiceImplTest {
 
     @Test
     @DirtiesContext
+    void shouldReturnCartProductsByCartIdSortedByName() {
+
+        Cart cart = cartService.store();
+
+        Product product = createProduct("B", "A", 1, 1);
+        productService.store(product);
+        CartProductKey cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        product = createProduct("C", "A", 1, 1);
+        productService.store(product);
+        cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        product = createProduct("A", "A", 1, 1);
+        productService.store(product);
+        cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        List<CartProduct> cartProducts = cartProductService.getCartProductsByCartIdSorted(1L, "name");
+
+        assertEquals("A", cartProducts.get(0).getProduct().getName());
+        assertEquals("B", cartProducts.get(1).getProduct().getName());
+        assertEquals("C", cartProducts.get(2).getProduct().getName());
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldReturnCartProductsByCartIdSortedByPrice() {
+
+        Cart cart = cartService.store();
+
+        Product product = createProduct("A", "A", 1, 2);
+        productService.store(product);
+        CartProductKey cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        product = createProduct("A", "A", 1, 3);
+        productService.store(product);
+        cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        product = createProduct("A", "A", 1, 1);
+        productService.store(product);
+        cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        List<CartProduct> cartProducts = cartProductService.getCartProductsByCartIdSorted(1L, "price");
+
+        assertEquals(BigDecimal.valueOf(1).setScale(2, RoundingMode.CEILING),
+                cartProducts.get(0).getProduct().getPrice());
+        assertEquals(BigDecimal.valueOf(2).setScale(2, RoundingMode.CEILING),
+                cartProducts.get(1).getProduct().getPrice());
+        assertEquals(BigDecimal.valueOf(3).setScale(2, RoundingMode.CEILING),
+                cartProducts.get(2).getProduct().getPrice());
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldReturnCartProductsByCartIdSortedByScore() {
+
+        Cart cart = cartService.store();
+
+        Product product = createProduct("A", "A", 2, 1);
+        productService.store(product);
+        CartProductKey cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        product = createProduct("A", "A", 3, 1);
+        productService.store(product);
+        cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        product = createProduct("A", "A", 1, 1);
+        productService.store(product);
+        cpk = new CartProductKey(cart, product);
+        cartProductRepository.save(new CartProduct(cpk, 1));
+
+        List<CartProduct> cartProducts = cartProductService.getCartProductsByCartIdSorted(1L, "score");
+
+        assertEquals((short) 1, cartProducts.get(0).getProduct().getScore());
+        assertEquals((short) 2, cartProducts.get(1).getProduct().getScore());
+        assertEquals((short) 3, cartProducts.get(2).getProduct().getScore());
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldNotReturnCartProductsByCartId() {
+
+        List<CartProduct> cartProducts = cartProductService.getCartProductsByCartIdSorted(1L, "");
+
+        assertTrue(cartProducts.isEmpty());
+        assertEquals(0, cartProducts.size());
+    }
+
+    @Test
+    @DirtiesContext
     void shouldShowCartProduct() {
 
         Cart cart = cartService.store();
 
-        Product product = createProduct("Name", "Image", 1, 1.0);
+        Product product = createProduct("Name", "Image", 1, 1);
         product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
@@ -73,7 +171,7 @@ public class CartProductServiceImplTest {
 
         Cart cart = cartService.store();
 
-        Product product = createProduct("Name", "Image", 1, 1.0);
+        Product product = createProduct("Name", "Image", 1, 1);
         product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
@@ -87,7 +185,7 @@ public class CartProductServiceImplTest {
 
         Cart cart = cartService.store();
 
-        Product product = createProduct("Name", "Image", 1, 1.0);
+        Product product = createProduct("Name", "Image", 1, 1);
         product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
@@ -110,7 +208,7 @@ public class CartProductServiceImplTest {
 
         Cart cart = cartService.store();
 
-        Product product = createProduct("Name", "Image", 1, 1.0);
+        Product product = createProduct("Name", "Image", 1, 1);
         product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
