@@ -1,6 +1,5 @@
 package br.com.superaGameStore.service.impl;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -54,20 +53,7 @@ public class CartServiceImpl implements CartService {
             return cart;
         }
 
-        List<CartProduct> cartProducts = cart.get().getCartProducts();
-
-        if (sort_by.equals("price")) {
-            Collections.sort(cartProducts, CartProduct.PriceComparator);
-            cart.get().setCartProducts(cartProducts);
-        }
-        if (sort_by.equals("name")) {
-            Collections.sort(cartProducts, CartProduct.NameComparator);
-            cart.get().setCartProducts(cartProducts);
-        }
-        if (sort_by.equals("score")) {
-            Collections.sort(cartProducts, CartProduct.ScoreComparator);
-            cart.get().setCartProducts(cartProducts);
-        }
+        cart.get().setCartProducts(cartProductService.getCartProductsByCartIdSorted(id, sort_by));
 
         return cart;
     }
