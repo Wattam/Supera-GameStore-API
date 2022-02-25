@@ -9,18 +9,15 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.superaGameStore.model.Product;
 import br.com.superaGameStore.repository.ProductRepository;
 import br.com.superaGameStore.service.ProductService;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class ProductServiceImplTest {
 
     @Autowired
@@ -42,12 +39,12 @@ public class ProductServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnAllProducts() {
+    void shouldIndexProducts() {
 
         productRepository.save(createProduct(1L, "Name1", "Image1", 1, 1));
         productRepository.save(createProduct(2L, "Name2", "Image2", 2, 2));
 
-        List<Product> products = productService.getAllProducts();
+        List<Product> products = productService.index();
 
         assertEquals(2, products.size());
 
@@ -67,20 +64,20 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    void shouldNotReturnAnyProduct() {
+    void shouldNotIndexProducts() {
 
-        List<Product> products = productService.getAllProducts();
+        List<Product> products = productService.index();
 
         assertEquals(0, products.size());
     }
 
     @Test
     @DirtiesContext
-    void shouldReturnProduct() {
+    void shouldShowProduct() {
 
         Product expected = productRepository.save(createProduct(1L, "Name", "Image", 1, 1));
 
-        Product actual = productService.getProduct(1L).get();
+        Product actual = productService.show(1L).get();
 
         assertEquals(expected, actual);
         assertEquals(1L, actual.getId());
@@ -92,14 +89,14 @@ public class ProductServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldNotReturnProduct() {
+    void shouldNotShowProduct() {
 
-        assertTrue(productService.getProduct(1L).isEmpty());
+        assertTrue(productService.show(1L).isEmpty());
     }
 
     @Test
     @DirtiesContext
-    void shouldAddProduct() {
+    void shouldStoreProduct() {
 
         Product expected = new Product();
         expected.setName("Name");
@@ -107,7 +104,7 @@ public class ProductServiceImplTest {
         expected.setScore((short) 1);
         expected.setPrice(BigDecimal.valueOf(1).setScale(2, RoundingMode.CEILING));
 
-        Product addedProduct = productService.addProduct(expected);
+        Product addedProduct = productService.store(expected);
         assertNotNull(addedProduct);
 
         Product actual = productRepository.findById(addedProduct.getId()).get();
@@ -120,13 +117,41 @@ public class ProductServiceImplTest {
 
     @Test
     @DirtiesContext
+    void shouldUpdateProduct() {
+
+        Product product = new Product();
+        product.setName("Name");
+        product.setImage("Image");
+        product.setScore((short) 1);
+        product.setPrice(BigDecimal.valueOf(1).setScale(2, RoundingMode.CEILING));
+        product = productRepository.save(product);
+
+        Product expected = new Product();
+        expected.setName("NameUpdated");
+        expected.setImage("ImageUpdated");
+        expected.setScore((short) 2);
+        expected.setPrice(BigDecimal.valueOf(2).setScale(2, RoundingMode.CEILING));
+
+        Product updatedProduct = productService.update(expected, product.getId());
+        assertNotNull(updatedProduct);
+
+        Product actual = productRepository.findById(updatedProduct.getId()).get();
+
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getImage(), actual.getImage());
+        assertEquals(expected.getScore(), actual.getScore());
+        assertEquals(expected.getPrice(), actual.getPrice());
+    }
+
+    @Test
+    @DirtiesContext
     void shouldDeleteProduct() {
 
         productRepository.save(createProduct(1L, "Name", "Image", 1, 1));
-        assertNotNull(productService.getProduct(1L).get());
+        assertNotNull(productService.show(1L).get());
 
-        productService.deleteProduct(1L);
+        productService.delete(1L);
 
-        assertTrue(productService.getProduct(1L).isEmpty());
+        assertTrue(productService.show(1L).isEmpty());
     }
 }

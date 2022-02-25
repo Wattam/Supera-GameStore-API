@@ -36,14 +36,14 @@ public class CartController {
     @ResponseStatus(HttpStatus.CREATED)
     public Cart store() {
 
-        return cartService.createCart();
+        return cartService.store();
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<Cart> index() {
 
-        List<Cart> carts = cartService.getAllCarts();
+        List<Cart> carts = cartService.index();
         if (carts == null || carts.isEmpty()) {
             throw new RecordNotFoundException("no cart found");
         }
@@ -55,7 +55,7 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     public Cart show(@PathVariable long id, @RequestParam(required = false, name = "sort_by") String sort_by) {
 
-        return cartService.getCart(id, sort_by)
+        return cartService.show(id, sort_by)
                 .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id));
     }
 
@@ -63,15 +63,14 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     public Cart addProduct(@RequestBody CartForm cartForm) {
 
-        cartService.getCart(cartForm.getCartId(), "")
-                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + cartForm.getCartId()));
-
-        productService.getProduct(cartForm.getProductId())
-                .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + cartForm.getProductId()));
-
-        if (cartService.getCart(cartForm.getCartId(), "").get().getStatus().equals("CLOSED")) {
+        if (cartService.show(cartForm.getCartId(), "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + cartForm.getCartId()))
+                .getStatus().equals("CLOSED")) {
             throw new MethodNotAllowedException("the cart " + cartForm.getCartId() + " is closed");
         }
+
+        productService.show(cartForm.getProductId())
+                .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + cartForm.getProductId()));
 
         return cartService.addProduct(
                 cartForm.getCartId(),
@@ -83,15 +82,14 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     public Cart removeProduct(@RequestBody CartForm cartForm) {
 
-        cartService.getCart(cartForm.getCartId(), "")
-                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + cartForm.getCartId()));
-
-        productService.getProduct(cartForm.getProductId())
-                .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + cartForm.getProductId()));
-
-        if (cartService.getCart(cartForm.getCartId(), "").get().getStatus().equals("CLOSED")) {
+        if (cartService.show(cartForm.getCartId(), "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + cartForm.getCartId()))
+                .getStatus().equals("CLOSED")) {
             throw new MethodNotAllowedException("the cart " + cartForm.getCartId() + " is closed");
         }
+
+        productService.show(cartForm.getProductId())
+                .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + cartForm.getProductId()));
 
         return cartService.removeProduct(
                 cartForm.getCartId(),
@@ -103,24 +101,23 @@ public class CartController {
     @ResponseStatus(HttpStatus.OK)
     public Cart checkout(@PathVariable long id) {
 
-        cartService.getCart(id, "")
-                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id));
-
-        if (cartService.getCart(id, "").get().getStatus().equals("CLOSED")) {
+        if (cartService.show(id, "")
+                .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id))
+                .getStatus().equals("CLOSED")) {
             throw new MethodNotAllowedException("the cart " + id + " is closed");
         }
 
-        return cartService.cartCheckOut(id);
+        return cartService.checkout(id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
 
-        cartService.getCart(id, "")
+        cartService.show(id, "")
                 .orElseThrow(() -> new RecordNotFoundException("no cart with the ID: " + id));
 
-        cartService.deleteCart(id);
+        cartService.delete(id);
     }
 
     @Data

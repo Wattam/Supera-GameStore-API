@@ -31,7 +31,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public List<Product> index() {
 
-        List<Product> products = productService.getAllProducts();
+        List<Product> products = productService.index();
         if (products == null || products.isEmpty()) {
             throw new RecordNotFoundException("no product found");
         }
@@ -43,7 +43,7 @@ public class ProductController {
     public Product show(@PathVariable long id) {
 
         return productService
-                .getProduct(id)
+                .show(id)
                 .orElseThrow(() -> new RecordNotFoundException("no product with the ID: " + id));
     }
 
@@ -51,27 +51,26 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public Product store(@Valid @RequestBody Product product) {
 
-        return productService.addProduct(product);
+        return productService.store(product);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Product update(@Valid @RequestBody Product product, @PathVariable long id) {
 
-        if (productService.getProduct(id).isEmpty()) {
+        if (productService.show(id).isEmpty()) {
             throw new RecordNotFoundException("no product with the ID: " + id);
         }
-        product.setId(id);
-        return productService.addProduct(product);
+        return productService.update(product, id);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {
 
-        if (productService.getProduct(id).isEmpty()) {
+        if (productService.show(id).isEmpty()) {
             throw new RecordNotFoundException("no product with the ID: " + id);
         }
-        productService.deleteProduct(id);
+        productService.delete(id);
     }
 }

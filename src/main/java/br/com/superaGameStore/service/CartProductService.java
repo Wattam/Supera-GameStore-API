@@ -7,9 +7,9 @@ import br.com.superaGameStore.model.CartProductKey;
 
 public interface CartProductService {
 
-    public Optional<CartProduct> getCartProduct(CartProductKey cpk);
+    public Optional<CartProduct> show(CartProductKey cpk);
 
-    public void addCartProduct(CartProduct cp);
+    public void store(CartProduct cp);
 
-    public void deleteCartProduct(CartProductKey cpk);
+    public void delete(CartProductKey cpk);
 }

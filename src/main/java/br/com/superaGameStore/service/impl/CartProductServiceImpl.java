@@ -17,19 +17,19 @@ public class CartProductServiceImpl implements CartProductService {
     public CartProductRepository cartProductRepository;
 
     @Override
-    public Optional<CartProduct> getCartProduct(CartProductKey cpk) {
+    public Optional<CartProduct> show(CartProductKey cpk) {
 
         return cartProductRepository.findById(cpk);
     }
 
     @Override
-    public void addCartProduct(CartProduct cp) {
+    public void store(CartProduct cp) {
 
         cartProductRepository.save(cp);
     }
 
     @Override
-    public void deleteCartProduct(CartProductKey cpk) {
+    public void delete(CartProductKey cpk) {
 
         cartProductRepository.deleteById(cpk);
     }

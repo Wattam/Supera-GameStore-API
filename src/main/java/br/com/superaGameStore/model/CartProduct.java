@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@Entity
+@Entity(name = "cart_product")
 public class CartProduct {
 
     @EmbeddedId

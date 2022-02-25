@@ -7,17 +7,17 @@ import br.com.superaGameStore.model.Cart;
 
 public interface CartService {
 
-    public Cart createCart();
+    public Cart store();
 
-    public List<Cart> getAllCarts();
+    public List<Cart> index();
 
-    public Optional<Cart> getCart(long id, String sort_by);
+    public Optional<Cart> show(long id, String sort_by);
 
     public Cart addProduct(long cartId, long productId, int quantity);
 
     public Cart removeProduct(long cartId, long productId, int quantity);
 
-    public Cart cartCheckOut(long id);
+    public Cart checkout(long id);
 
-    public void deleteCart(long id);
+    public void delete(long id);
 }

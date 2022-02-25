@@ -7,11 +7,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
@@ -23,7 +21,6 @@ import br.com.superaGameStore.service.CartService;
 import br.com.superaGameStore.service.ProductService;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class CartProductServiceImplTest {
 
     @Autowired
@@ -50,18 +47,18 @@ public class CartProductServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartProduct() {
+    void shouldShowCartProduct() {
 
-        Cart cart = cartService.createCart();
+        Cart cart = cartService.store();
 
         Product product = createProduct("Name", "Image", 1, 1.0);
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
         CartProduct expected = new CartProduct(cpk, 1);
         cartProductRepository.save(expected);
 
-        CartProduct actual = cartProductService.getCartProduct(cpk).get();
+        CartProduct actual = cartProductService.show(cpk).get();
 
         assertEquals(expected, actual);
         assertEquals(expected.getProduct(), actual.getProduct());
@@ -72,31 +69,31 @@ public class CartProductServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldNotReturnCartProduct() {
+    void shouldNotShowCartProduct() {
 
-        Cart cart = cartService.createCart();
+        Cart cart = cartService.store();
 
         Product product = createProduct("Name", "Image", 1, 1.0);
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
 
-        assertTrue(cartProductService.getCartProduct(cpk).isEmpty());
+        assertTrue(cartProductService.show(cpk).isEmpty());
     }
 
     @Test
     @DirtiesContext
-    void shouldAddCartProduct() {
+    void shouldStoreCartProduct() {
 
-        Cart cart = cartService.createCart();
+        Cart cart = cartService.store();
 
         Product product = createProduct("Name", "Image", 1, 1.0);
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
         CartProduct expected = new CartProduct(cpk, 1);
 
-        cartProductService.addCartProduct(expected);
+        cartProductService.store(expected);
 
         CartProduct actual = cartProductRepository.findById(cpk).get();
 
@@ -111,17 +108,17 @@ public class CartProductServiceImplTest {
     @DirtiesContext
     void shouldDeleteCartProduct() {
 
-        Cart cart = cartService.createCart();
+        Cart cart = cartService.store();
 
         Product product = createProduct("Name", "Image", 1, 1.0);
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
         CartProductKey cpk = new CartProductKey(cart, product);
         CartProduct cartProduct = new CartProduct(cpk, 1);
         cartProductRepository.save(cartProduct);
         assertTrue(cartProductRepository.findById(cpk).isPresent());
 
-        cartProductService.deleteCartProduct(cpk);
+        cartProductService.delete(cpk);
 
         assertTrue(cartProductRepository.findById(cpk).isEmpty());
     }

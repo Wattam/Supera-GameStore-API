@@ -7,11 +7,13 @@ import br.com.superaGameStore.model.Product;
 
 public interface ProductService {
 
-    public List<Product> getAllProducts();
+    public List<Product> index();
 
-    public Optional<Product> getProduct(long id);
+    public Optional<Product> show(long id);
 
-    public Product addProduct(Product product);
+    public Product store(Product product);
 
-    public void deleteProduct(long id);
+    public Product update(Product product, long id);
+
+    public void delete(long id);
 }

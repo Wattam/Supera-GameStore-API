@@ -69,7 +69,7 @@ public class ProductControllerTest {
                 .add(product2)
                 .build();
 
-        when(productService.getAllProducts()).thenReturn(products);
+        when(productService.index()).thenReturn(products);
 
         mockMvc.perform(get("/products").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -87,7 +87,7 @@ public class ProductControllerTest {
     @Test
     void shouldNotIndexProducts() throws Exception {
 
-        when(productService.getAllProducts()).thenReturn(Collections.emptyList());
+        when(productService.index()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/products").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -101,7 +101,7 @@ public class ProductControllerTest {
         Product product = createProduct("Name", "Image", 1, 1);
         product.setId(1L);
 
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+        when(productService.show(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(get("/products/1").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -113,8 +113,6 @@ public class ProductControllerTest {
 
     @Test
     void shouldNotShowProduct() throws Exception {
-
-        when(productService.getAllProducts()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/products/1").accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -139,7 +137,7 @@ public class ProductControllerTest {
 
         Product product = new Product();
 
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+        when(productService.show(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(put("/products/1").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
                 .andExpect(status().isOk());
@@ -162,7 +160,7 @@ public class ProductControllerTest {
 
         Product product = new Product();
 
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+        when(productService.show(1L)).thenReturn(Optional.of(product));
 
         mockMvc.perform(delete("/products/1").accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());

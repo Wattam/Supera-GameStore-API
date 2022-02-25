@@ -9,11 +9,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import br.com.superaGameStore.model.Cart;
 import br.com.superaGameStore.model.CartProduct;
@@ -23,7 +21,6 @@ import br.com.superaGameStore.service.CartService;
 import br.com.superaGameStore.service.ProductService;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class CartServiceImplTest {
 
     @Autowired
@@ -46,9 +43,10 @@ public class CartServiceImplTest {
     }
 
     @Test
-    void shouldCreateCart() {
+    @DirtiesContext
+    void shouldStoreCart() {
 
-        Cart cartFromService = cartService.createCart();
+        Cart cartFromService = cartService.store();
         Cart cartFromRepository = cartRepository.findById(cartFromService.getId()).get();
 
         assertEquals(cartFromService.getId(), cartFromRepository.getId());
@@ -60,12 +58,13 @@ public class CartServiceImplTest {
     }
 
     @Test
-    void shouldReturnAllCarts() {
+    @DirtiesContext
+    void shouldIndexCarts() {
 
-        cartService.createCart();
-        cartService.createCart();
+        cartService.store();
+        cartService.store();
 
-        List<Cart> carts = cartService.getAllCarts();
+        List<Cart> carts = cartService.index();
 
         assertEquals(2, carts.size());
 
@@ -80,23 +79,23 @@ public class CartServiceImplTest {
     }
 
     @Test
-    void shouldNotReturnAnyCart() {
+    void shouldNotIndexCarts() {
 
-        List<Cart> carts = cartService.getAllCarts();
+        List<Cart> carts = cartService.index();
 
         assertEquals(0, carts.size());
     }
 
     @Test
     @DirtiesContext
-    void shouldReturnCart() {
+    void shouldShowCart() {
 
         Cart expected = new Cart();
         expected.setStatus("OPEN");
         expected.setCartProducts(Collections.emptyList());
         expected = cartRepository.save(expected);
 
-        Cart actual = cartService.getCart(expected.getId(), "").get();
+        Cart actual = cartService.show(expected.getId(), "").get();
 
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getStatus(), actual.getStatus());
@@ -105,23 +104,23 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartWithProductsByPrice() {
+    void shouldShowCartWithProductsByPrice() {
 
         Product product1 = createProduct("Name", "Image", 1, 2.0);
         Product product2 = createProduct("Name", "Image", 1, 3.0);
         Product product3 = createProduct("Name", "Image", 1, 1.0);
 
-        product1 = productService.addProduct(product1);
-        product2 = productService.addProduct(product2);
-        product3 = productService.addProduct(product3);
+        product1 = productService.store(product1);
+        product2 = productService.store(product2);
+        product3 = productService.store(product3);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
 
         cartService.addProduct(cartId, product1.getId(), 1);
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCart(cartId, "price").get().getCartProducts();
+        List<CartProduct> cartProducts = cartService.show(cartId, "price").get().getCartProducts();
 
         assertEquals(
                 BigDecimal.valueOf(1.00).setScale(2, RoundingMode.CEILING),
@@ -136,23 +135,23 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartWithProductsByName() {
+    void shouldShowCartWithProductsByName() {
 
         Product product1 = createProduct("B", "Image", 1, 1.0);
         Product product2 = createProduct("C", "Image", 1, 1.0);
         Product product3 = createProduct("A", "Image", 1, 1.0);
 
-        product1 = productService.addProduct(product1);
-        product2 = productService.addProduct(product2);
-        product3 = productService.addProduct(product3);
+        product1 = productService.store(product1);
+        product2 = productService.store(product2);
+        product3 = productService.store(product3);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
 
         cartService.addProduct(cartId, product1.getId(), 1);
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCart(cartId, "name").get().getCartProducts();
+        List<CartProduct> cartProducts = cartService.show(cartId, "name").get().getCartProducts();
 
         assertEquals("A", cartProducts.get(0).getProduct().getName());
         assertEquals("B", cartProducts.get(1).getProduct().getName());
@@ -161,23 +160,23 @@ public class CartServiceImplTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnCartWithProductsByScore() {
+    void shouldShowCartWithProductsByScore() {
 
         Product product1 = createProduct("Name", "Image", 2, 1.0);
         Product product2 = createProduct("Name", "Image", 1, 1.0);
         Product product3 = createProduct("Name", "Image", 3, 1.0);
 
-        product1 = productService.addProduct(product1);
-        product2 = productService.addProduct(product2);
-        product3 = productService.addProduct(product3);
+        product1 = productService.store(product1);
+        product2 = productService.store(product2);
+        product3 = productService.store(product3);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
 
         cartService.addProduct(cartId, product1.getId(), 1);
         cartService.addProduct(cartId, product2.getId(), 1);
         cartService.addProduct(cartId, product3.getId(), 1);
 
-        List<CartProduct> cartProducts = cartService.getCart(cartId, "score").get().getCartProducts();
+        List<CartProduct> cartProducts = cartService.show(cartId, "score").get().getCartProducts();
 
         assertEquals((short) 3, cartProducts.get(0).getProduct().getScore());
         assertEquals((short) 2, cartProducts.get(1).getProduct().getScore());
@@ -190,9 +189,9 @@ public class CartServiceImplTest {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
 
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
 
         cartService.addProduct(cartId, product.getId(), 1);
 
@@ -214,9 +213,9 @@ public class CartServiceImplTest {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
 
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
 
         cartService.addProduct(cartId, product.getId(), 1);
         cartService.addProduct(cartId, product.getId(), 1);
@@ -233,9 +232,9 @@ public class CartServiceImplTest {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
 
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
         cartService.addProduct(cartId, product.getId(), 1);
 
         assertEquals(1, cartRepository.findById(cartId).get().getCartProducts().size());
@@ -251,9 +250,9 @@ public class CartServiceImplTest {
 
         Product product = createProduct("Name", "Image", 1, 1.0);
 
-        product = productService.addProduct(product);
+        product = productService.store(product);
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
         cartService.addProduct(cartId, product.getId(), 5);
 
         assertEquals(product.getId(),
@@ -266,12 +265,13 @@ public class CartServiceImplTest {
     }
 
     @Test
-    void shouldCheckOutCart() {
+    @DirtiesContext
+    void shouldCheckoutCart() {
 
-        long cartId = cartService.createCart().getId();
+        long cartId = cartService.store().getId();
         assertEquals("OPEN", cartRepository.findById(cartId).get().getStatus());
 
-        Cart closedCart = cartService.cartCheckOut(cartId);
+        Cart closedCart = cartService.checkout(cartId);
 
         assertEquals("CLOSED", closedCart.getStatus());
         assertEquals("CLOSED", cartRepository.findById(cartId).get().getStatus());
@@ -280,14 +280,14 @@ public class CartServiceImplTest {
     @Test
     void shouldDeleteCart() {
 
-        long cartId = cartService.createCart().getId();
-        List<Cart> carts = cartService.getAllCarts();
+        long cartId = cartService.store().getId();
+        List<Cart> carts = cartService.index();
 
         assertEquals(1, carts.size());
 
-        cartService.deleteCart(cartId);
+        cartService.delete(cartId);
 
-        carts = cartService.getAllCarts();
+        carts = cartService.index();
         assertEquals(0, carts.size());
     }
 }

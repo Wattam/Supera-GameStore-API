@@ -42,315 +42,312 @@ import br.com.superaGameStore.service.ProductService;
 @AutoConfigureMockMvc
 public class CartControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private CartService cartService;
-
-    @MockBean
-    private ProductService productService;
-
-    private Cart createCart(long id) {
-
-        Cart cart = new Cart();
-        cart.setId(id);
-        cart.setStatus("OPEN");
-        List<CartProduct> cartProducts = new ArrayList<>();
-        cart.setCartProducts(cartProducts);
-        return cart;
-    }
-
-    public Product createProduct(String name, String image, int score, double price) {
-
-        Product product = new Product();
-        product.setName(name);
-        product.setImage(image);
-        product.setScore((short) score);
-        product.setPrice(BigDecimal.valueOf(price).setScale(2, RoundingMode.CEILING));
-        return product;
-    }
-
-    @BeforeEach
-    public void setUp() {
-        Mockito.reset(cartService);
-    }
-
-    @Test
-    void shouldStoreCart() throws Exception {
-
-        Cart cart = createCart(1L);
-
-        when(cartService.createCart()).thenReturn(cart);
-
-        mockMvc.perform(post("/carts").accept(APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", is(1)))
-                .andExpect(jsonPath("$.status", is("OPEN")))
-                .andExpect(jsonPath("$.cartProducts", is(Collections.emptyList())))
-                .andExpect(jsonPath("$.totalPrice").value(0.00))
-                .andExpect(jsonPath("$.subTotalPrice").value(0.00))
-                .andExpect(jsonPath("$.shippingFee").value(0.00));
-    }
+        @Autowired
+        private MockMvc mockMvc;
+
+        @MockBean
+        private CartService cartService;
+
+        @MockBean
+        private ProductService productService;
+
+        private Cart createCart(long id) {
+
+                Cart cart = new Cart();
+                cart.setId(id);
+                cart.setStatus("OPEN");
+                List<CartProduct> cartProducts = new ArrayList<>();
+                cart.setCartProducts(cartProducts);
+                return cart;
+        }
+
+        public Product createProduct(String name, String image, int score, double price) {
+
+                Product product = new Product();
+                product.setName(name);
+                product.setImage(image);
+                product.setScore((short) score);
+                product.setPrice(BigDecimal.valueOf(price).setScale(2, RoundingMode.CEILING));
+                return product;
+        }
+
+        @BeforeEach
+        public void setUp() {
+                Mockito.reset(cartService);
+        }
+
+        @Test
+        void shouldStoreCart() throws Exception {
+
+                Cart cart = createCart(1L);
+
+                when(cartService.store()).thenReturn(cart);
+
+                mockMvc.perform(post("/carts").accept(APPLICATION_JSON))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.id", is(1)))
+                                .andExpect(jsonPath("$.status", is("OPEN")))
+                                .andExpect(jsonPath("$.cartProducts", is(Collections.emptyList())))
+                                .andExpect(jsonPath("$.totalPrice").value(0.00))
+                                .andExpect(jsonPath("$.subTotalPrice").value(0.00))
+                                .andExpect(jsonPath("$.shippingFee").value(0.00));
+        }
+
+        @Test
+        void shouldIndexCarts() throws Exception {
+
+                Cart cart1 = createCart(1L);
+                Cart cart2 = createCart(2L);
+                List<Cart> carts = ImmutableList
+                                .<Cart>builder()
+                                .add(cart1)
+                                .add(cart2)
+                                .build();
+
+                when(cartService.index()).thenReturn(carts);
+
+                mockMvc.perform(get("/carts").accept(APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("length()").value(carts.size()))
+                                .andExpect(jsonPath("$[0].id", is(1)))
+                                .andExpect(jsonPath("$[0].status", is("OPEN")))
+                                .andExpect(jsonPath("$[0].cartProducts", is(Collections.emptyList())))
+                                .andExpect(jsonPath("$[1].id", is(2)))
+                                .andExpect(jsonPath("$[1].status", is("OPEN")))
+                                .andExpect(jsonPath("$[1].cartProducts", is(Collections.emptyList())));
+        }
+
+        @Test
+        void shouldNotIndexCarts() throws Exception {
+
+                when((List<Cart>) cartService.index()).thenReturn(Collections.emptyList());
+
+                mockMvc.perform(get("/carts").accept(APPLICATION_JSON))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no cart found",
+                                                result.getResolvedException().getMessage()));
+        }
 
-    @Test
-    void shouldIndexCarts() throws Exception {
-
-        Cart cart1 = createCart(1L);
-        Cart cart2 = createCart(2L);
-        List<Cart> carts = ImmutableList
-                .<Cart>builder()
-                .add(cart1)
-                .add(cart2)
-                .build();
-
-        when(cartService.getAllCarts()).thenReturn(carts);
-
-        mockMvc.perform(get("/carts").accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("length()").value(carts.size()))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[0].status", is("OPEN")))
-                .andExpect(jsonPath("$[0].cartProducts", is(Collections.emptyList())))
-                .andExpect(jsonPath("$[1].id", is(2)))
-                .andExpect(jsonPath("$[1].status", is("OPEN")))
-                .andExpect(jsonPath("$[1].cartProducts", is(Collections.emptyList())));
-    }
+        @Test
+        void shouldShowCart() throws Exception {
+
+                Cart cart = createCart(1);
 
-    @Test
-    void shouldNotIndexCarts() throws Exception {
-
-        when((List<Cart>) cartService.getAllCarts()).thenReturn(Collections.emptyList());
-
-        mockMvc.perform(get("/carts").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart found",
-                        result.getResolvedException().getMessage()));
-    }
+                when(cartService.show(1L, null)).thenReturn(Optional.of(cart));
 
-    @Test
-    void shouldShow() throws Exception {
+                mockMvc.perform(get("/carts/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()));
+        }
 
-        Cart cart = createCart(1);
+        @Test
+        void shouldNotShowCart() throws Exception {
 
-        when(cartService.getCart(1L, null)).thenReturn(Optional.of(cart));
+                mockMvc.perform(get("/carts/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        mockMvc.perform(get("/carts/1").accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cartProducts.length()").value(cart.getCartProducts().size()));
-    }
+        @Test
+        void shouldAddProduct() throws Exception {
 
-    @Test
-    void shouldNotGetCartByPrice() throws Exception {
+                Cart cart = createCart(1);
 
-        mockMvc.perform(get("/carts/1").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+                Product product = createProduct("Name", "Image", 1, 1);
 
-    @Test
-    void shouldAddProduct() throws Exception {
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
+                when(productService.show(1L)).thenReturn(Optional.of(product));
+                when(cartService.addProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
 
-        Cart cart = createCart(1);
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        Product product = createProduct("Name", "Image", 1, 1);
+                mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isOk());
+        }
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
-        when(cartService.addProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
+        @Test
+        void shouldNotAddProductCauseCartNotFound() throws Exception {
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 
-    @Test
-    void shouldNotAddProductCauseCartNotFound() throws Exception {
+        @Test
+        void shouldNotAddProductCauseProductNotFound() throws Exception {
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                Cart cart = createCart(1);
 
-        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
 
-    @Test
-    void shouldNotAddProductCauseProductNotFound() throws Exception {
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        Cart cart = createCart(1);
+                mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no product with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+        @Test
+        void shouldNotAddProductCauseCartIsClosed() throws Exception {
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                Cart cart = createCart(1);
+                cart.setStatus("CLOSED");
 
-        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no product with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
 
-    @Test
-    void shouldNotAddProductCauseCartIsClosed() throws Exception {
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        Cart cart = createCart(1);
-        cart.setStatus("CLOSED");
+                mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isMethodNotAllowed())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof MethodNotAllowedException))
+                                .andExpect(result -> assertEquals("the cart 1 is closed",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        Product product = createProduct("Name", "Image", 1, 1);
+        @Test
+        void shouldRemoveProduct() throws Exception {
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+                Cart cart = createCart(1);
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                Product product = createProduct("Name", "Image", 1, 1);
 
-        mockMvc.perform(put("/carts/addProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON).content(json))
-                .andExpect(status().isMethodNotAllowed())
-                .andExpect(status().isMethodNotAllowed())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof MethodNotAllowedException))
-                .andExpect(result -> assertEquals("the cart 1 is closed",
-                        result.getResolvedException().getMessage()));
-    }
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
+                when(productService.show(1L)).thenReturn(Optional.of(product));
+                when(cartService.removeProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
 
-    @Test
-    void shouldRemoveProduct() throws Exception {
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        Cart cart = createCart(1);
+                mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isOk());
+        }
 
-        Product product = createProduct("Name", "Image", 1, 1);
+        @Test
+        void shouldNotRemoveProductCauseCartNotFound() throws Exception {
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
-        when(cartService.removeProduct(cart.getId(), product.getId(), 1)).thenReturn(cart);
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isOk());
-    }
+        @Test
+        void shouldNotRemoveProductCauseProductNotFound() throws Exception {
 
-    @Test
-    void shouldNotRemoveProductCauseCartNotFound() throws Exception {
+                Cart cart = createCart(1);
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
 
-        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-    @Test
-    void shouldNotRemoveProductCauseProductNotFound() throws Exception {
+                mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no product with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        Cart cart = createCart(1);
+        @Test
+        void shouldNotRemoveProductCauseCartIsClosed() throws Exception {
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+                Cart cart = createCart(1);
+                cart.setStatus("CLOSED");
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
 
-        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no product with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+                String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
 
-    @Test
-    void shouldNotRemoveProductCauseCartIsClosed() throws Exception {
+                mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
+                                .content(json))
+                                .andExpect(status().isMethodNotAllowed())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof MethodNotAllowedException))
+                                .andExpect(result -> assertEquals("the cart 1 is closed",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        Cart cart = createCart(1);
-        cart.setStatus("CLOSED");
+        @Test
+        void shouldCheckoutCart() throws Exception {
 
-        Product product = createProduct("Name", "Image", 1, 1);
+                Cart cart = createCart(1);
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
-        when(productService.getProduct(1L)).thenReturn(Optional.of(product));
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
+                when(cartService.checkout(1L)).thenReturn(cart);
 
-        String json = "{\"cartId\": \"1\",\"productId\": \"1\",\"quantity\": 1}";
+                mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isOk());
+        }
 
-        mockMvc.perform(put("/carts/removeProduct").accept(APPLICATION_JSON).contentType(APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isMethodNotAllowed())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof MethodNotAllowedException))
-                .andExpect(result -> assertEquals("the cart 1 is closed",
-                        result.getResolvedException().getMessage()));
-    }
+        @Test
+        void shouldNotCheckoutCartCauseCartNotFound() throws Exception {
 
-    @Test
-    void shouldCheckOutCart() throws Exception {
+                mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        Cart cart = createCart(1);
+        @Test
+        void shouldNotCheckoutCartCauseCartIsClosed() throws Exception {
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
-        when(cartService.cartCheckOut(1L)).thenReturn(cart);
+                Cart cart = createCart(1);
+                cart.setStatus("CLOSED");
 
-        mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
 
-    @Test
-    void shouldNotCheckOutCartCauseCartNotFound() throws Exception {
+                mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isMethodNotAllowed())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof MethodNotAllowedException))
+                                .andExpect(result -> assertEquals("the cart 1 is closed",
+                                                result.getResolvedException().getMessage()));
+        }
 
-        mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+        @Test
+        void shouldDeleteCart() throws Exception {
 
-    @Test
-    void shouldNotCheckOutCartCauseCartIsClosed() throws Exception {
+                Cart cart = createCart(1);
+                when(cartService.show(1L, "")).thenReturn(Optional.of(cart));
 
-        Cart cart = createCart(1);
-        cart.setStatus("CLOSED");
+                mockMvc.perform(delete("/carts/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isNoContent());
+        }
 
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
+        @Test
+        void shouldNotDeleteCart() throws Exception {
 
-        mockMvc.perform(put("/carts/checkout/1").accept(APPLICATION_JSON))
-                .andExpect(status().isMethodNotAllowed())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof MethodNotAllowedException))
-                .andExpect(result -> assertEquals("the cart 1 is closed",
-                        result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void shouldDeleteCart() throws Exception {
-
-        Cart cart = createCart(1);
-        when(cartService.getCart(1L, "")).thenReturn(Optional.of(cart));
-
-        mockMvc.perform(delete("/carts/1").accept(APPLICATION_JSON))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void shouldNotDeleteCart() throws Exception {
-
-        mockMvc.perform(delete("/carts/1").accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(result -> assertTrue(
-                        result.getResolvedException() instanceof RecordNotFoundException))
-                .andExpect(result -> assertEquals("no cart with the ID: 1",
-                        result.getResolvedException().getMessage()));
-    }
+                mockMvc.perform(delete("/carts/1").accept(APPLICATION_JSON))
+                                .andExpect(status().isNotFound())
+                                .andExpect(result -> assertTrue(
+                                                result.getResolvedException() instanceof RecordNotFoundException))
+                                .andExpect(result -> assertEquals("no cart with the ID: 1",
+                                                result.getResolvedException().getMessage()));
+        }
 }
